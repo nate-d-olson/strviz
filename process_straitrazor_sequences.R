@@ -12,7 +12,7 @@ process_seqfile <- function(seq_file, read){
     }
     read.table(file=seq_file, header=FALSE, sep="\t") %>% 
         separate(V1, into = c("Locus", "Allele"), sep = ":") %>% 
-        rename(Allele_Calls = V4, Size = V2, Sequencee = V3) %>% 
+        rename(Allele_Calls = V4, Size = V2, Sequence = V3) %>% 
         mutate(Allele_Calls = as.integer(Allele_Calls), READ = read)
 }
 
