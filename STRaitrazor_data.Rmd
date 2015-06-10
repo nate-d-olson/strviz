@@ -17,33 +17,34 @@ directory & locus name variable
 library(dplyr)
 library(tidyr)
 library(ggplot2)
+library(gtools)
 ```
 
 
 
 ```{r}
 
-process_locus <- function (locus, directory=".") { 
-    seq_file <- paste0(directory, locus, ".sequences")
-    txt_file <- paste0(directory, locus, ".Allelecalls.txt")
-    loc_dat <- read.table(file=seq_file, header=FALSE, sep="\t")
-
-
-    loc_dat2 <- loc_dat %>% separate(V1, into = c("Locus", "Allele"), sep = ":") %>% 
-                        rename(Allele_Calls = V4) %>% mutate(Allele_Calls = as.integer(Allele_Calls))
-    loc_dat2 <- loc_dat2[,-c(3,4)]
-  
-    loc2_dat <- read.table(file=txt_file, header=FALSE, sep="\t")
-    loc2_dat2 <- head(loc2_dat, -1) 
-    loc2_dat2 <- loc2_dat2 %>% separate(V1, into = c("Locus", "Read", "Locus", "Allele", "Allele_Calls"), sep = ":") 
-   loc2_dat2$Allele_Calls <- NULL
-#    
-#     loc2_dat2 <- loc2_dat2[,-c(2:3)]
-#     loc2_dat2[loc2_dat2==""]  <- 0 
-#     loc2_dat2$Allele_Calls<-as.integer(loc2_dat2$Allele_Calls)
-#     loc2_dat2 <- loc2_dat2[loc2_dat2$Allele_Calls == 0,]
-    
-    bind_rows(loc_dat2, loc2_dat2)
+# process_locus <- function (locus, directory=".") { 
+#     seq_file <- paste0(directory, locus, ".sequences")
+#     txt_file <- paste0(directory, locus, ".Allelecalls.txt")
+#     loc_dat <- read.table(file=seq_file, header=FALSE, sep="\t")
+# 
+# 
+#     loc_dat2 <- loc_dat %>% separate(V1, into = c("Locus", "Allele"), sep = ":") %>% 
+#                         rename(Allele_Calls = V4) %>% mutate(Allele_Calls = as.integer(Allele_Calls))
+#     loc_dat2 <- loc_dat2[,-c(3,4)]
+#   
+#     loc2_dat <- read.table(file=txt_file, header=FALSE, sep="\t")
+#     loc2_dat2 <- head(loc2_dat, -1) 
+#     loc2_dat2 <- loc2_dat2 %>% separate(V1, into = c("Locus", "Read", "Locus", "Allele", "Allele_Calls"), sep = ":") 
+#    loc2_dat2$Allele_Calls <- NULL
+#     
+#      loc2_dat2 <- loc2_dat2[,-c(2:3)]
+#      loc2_dat2[loc2_dat2==""]  <- 0 
+#      loc2_dat2$Allele_Calls<-as.integer(loc2_dat2$Allele_Calls)
+#      loc2_dat2 <- loc2_dat2[loc2_dat2$Allele_Calls == 0,]
+#     
+#     bind_rows(loc_dat2, loc2_dat2)
        
 }
     
@@ -60,7 +61,7 @@ loc_dat3 <- process_locus("D5S818", readdir)
 ```
 
 ```{r, echo=FALSE, include=FALSE}
-ggplot(data=loc_dat3, aes(x=Allele, y=AlleleCalls, fill=Allele)) +
+ggplot(data=loc_dat3, aes(x=Allele, y=Allele_Calls, fill=Allele)) +
     geom_bar(stat="identity") + 
     guides(fill=FALSE) + 
     ylab("Coverage") + 
@@ -92,7 +93,9 @@ process_sequence <- function (locus, directory=".") {
 
     loc_dat2 <- loc_dat %>% separate(V1, into = c("Locus", "Allele"), sep = ":") %>% 
         rename(Allele_Calls = V4) %>% rename(Size = V2) %>% rename(Sequence = V3) %>%
-    mutate(Allele_Calls = as.integer(Allele_Calls))
+        mutate(Allele_Calls = as.integer(Allele_Calls))
+#    loc_dat2$Allele <- factor(loc_dat2$Allele, levels=unique(as.character(loc_dat2$Allele)))
+
     #want to add a colum with the read number (either R1 or R2 depending on)
     
 }
@@ -101,7 +104,19 @@ process_sequence <- function (locus, directory=".") {
 ```{r}
 seq_dir <- "/Users/sew/Downloads/H12-H-ZT80925_S96_L001_R1_001.fastq.STRaitRazor copy/PE_MiSeq_ALL"
 read_seq_dir <- paste0(seq_dir, "/R1/")
-loc_seq_dat <- process_sequence("D5S818", read_seq_dir)
+loc_seq_dat <- process_sequence("D7S820", read_seq_dir)
+```
+
+
+
+```{r, echo=FALSE}
+loc_seq_dat$Allele <- factor(loc_seq_dat$Allele, levels=unique(as.character(loc_seq_dat$Allele)))
+ggplot(data=loc_seq_dat, aes(x=Allele, y=Allele_Calls, fill=factor(Allele_Calls), order=Allele_Calls)) +
+    geom_bar(stat="identity") + 
+    ylab("Coverage") + 
+    ggtitle(loc_seq_dat$Locus) + 
+    guides(fill=guide_legend(title="Coverage")) +
+    theme(axis.text.x = element_text(angle = 60, hjust = 1)) 
 ```
 
 ```{r}
@@ -123,7 +138,3 @@ loc_seq_dat <- process_sequence("D5S818", read_seq_dir)
 #only use sequence files
 #loop through the files and sort between locus and read
 #bind the rows
-
-
-
-
