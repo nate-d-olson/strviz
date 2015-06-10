@@ -11,3 +11,8 @@ vignettes/*.html
 vignettes/*.pdf
 .Rproj.user
 packrat/lib*/
+
+*html
+*.DS_Store
+*.RData
+*.Rprofile
