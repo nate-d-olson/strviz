@@ -1,0 +1,25 @@
+---
+title: "Batch Processing sequences files"
+author: "Nate Olson"
+date: "June 10, 2015"
+output: html_document
+---
+## Objective
+Develop code for batch processing seqeunces files generated from STRaitRazor
+
+```{r}
+source("process_straitrazor_sequences.R")
+```
+
+Note the warning messages, these are for empty files, used the try() function to skip them
+
+```{r}
+#```{r warning= FALSE} # use to supress warning messages
+seq_df <- process_directory("H12-H-ZT80925_S96_L001_R1_001.fastq.STRaitRazor/PE_MiSeq_ALL/")
+```
+
+```{r}
+seq_df
+glimpse(seq_df)
+```
+
