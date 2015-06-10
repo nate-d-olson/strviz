@@ -22,4 +22,3 @@ seq_df <- process_directory("H12-H-ZT80925_S96_L001_R1_001.fastq.STRaitRazor/PE_
 seq_df
 glimpse(seq_df)
 ```
-
