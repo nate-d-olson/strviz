@@ -7,14 +7,15 @@ library(magrittr)
 process_seqfile <- function(seq_file, read){
     df <- try(read.table(seq_file,sep ="\t", stringsAsFactors=F))
     if(class(df)=='try-error') {
-        warning(paste0(seq_file, " is empty"))
+        warning(paste0(seq_file, "is empty"))
         return()
     }
     read.table(file=seq_file, header=FALSE, sep="\t") %>% 
         separate(V1, into = c("Locus", "Allele"), sep = ":") %>% 
         rename(Allele_Calls = V4, Size = V2, Sequence = V3) %>% 
-        mutate(Allele_Calls = as.integer(Allele_Calls), READ = read)
+        mutate(Allele_Calls = as.integer(Allele_Calls), Read = read)
 }
+
 
 process_directory <- function(root_dir, paired = TRUE){
     df <- data_frame()
@@ -23,7 +24,11 @@ process_directory <- function(root_dir, paired = TRUE){
             directory <- paste0(root_dir,"/", read,"/")
             for(seq_file in list.files(directory, "sequences",full.names = TRUE)){
                 df %<>% bind_rows(process_seqfile(seq_file,read))
+            
             }
+            
+            # add second line for processing the txt file 
+            
         }
     }else{
         #%%TODO%%
@@ -31,3 +36,27 @@ process_directory <- function(root_dir, paired = TRUE){
     }
     df
 }
+
+
+
+process_directory2 <- function(root_dir, paired = TRUE){
+    df2 <- data_frame()
+    if(paired){
+        for(read in c("R1", "R2")){
+            directory <- paste0(root_dir,"/", read,"/")
+            for(txt_file in list.files(directory, "Allelecalls.txt",full.names = TRUE)){
+                df2 %<>% bind_rows(process_txtfile(txt_file,read))
+            }
+            
+        }
+    }else{
+        #%%TODO%%
+        warning("No code for unpaired read data")
+    }
+    df
+}
+
+
+
+
+
