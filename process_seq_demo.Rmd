@@ -9,16 +9,29 @@ Develop code for batch processing seqeunces files generated from STRaitRazor
 
 ```{r}
 source("process_straitrazor_sequences.R")
-```
+``` 
 
 Note the warning messages, these are for empty files, used the try() function to skip them
 
-```{r}
-#```{r warning= FALSE} # use to supress warning messages
+```{r warning=FALSE}
 seq_df <- process_directory("H12-H-ZT80925_S96_L001_R1_001.fastq.STRaitRazor/PE_MiSeq_ALL/")
+
 ```
+
 
 ```{r}
 seq_df
 glimpse(seq_df)
 ```
+
+
+```{r}
+
+#This is the graph I have so far, I have been trying to find a way to have a stacked bar chart combined with a dodged bar chart (for two difference variables) but so far no luck. 
+#I am also still trying to figure out how to order the numbers correctly, I've been close but I haven't completely figured it out yet. (The X & Y values for AMEL seem to be messing that up a little, or it will be mostly in order except for one value)
+ggplot(seq_df, aes(Allele, Allele_Calls, fill=Read)) +
+    geom_bar(position="dodge", stat="identity") +
+    facet_wrap(~Locus, scales = 'free_x') + 
+    ylab("Coverage")
+```
+
