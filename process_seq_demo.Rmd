@@ -7,7 +7,7 @@ output: html_document
 ## Objective
 Develop code for batch processing txt and seqeunces files generated from STRaitRazor
 
-```{r}
+```{r, message=FALSE, warning=FALSE}
 source("process_straitrazor_output.R")
 ``` 
 
@@ -20,20 +20,58 @@ allelecalls_df <- process_allelecalls_directory("H12-H-ZT80925_S96_L001_R1_001.f
 
 
 ```{r}
-seq_df
-glimpse(seq_df)
-allelecalls_df
-glimpse(allelecalls_df)
+#seq_df
+#glimpse(seq_df)
+#allelecalls_df
+#glimpse(allelecalls_df)
 ```
 
 
 ```{r}
 
 #This is the graph I have so far, I have been trying to find a way to have a stacked bar chart combined with a dodged bar chart (for two difference variables) but so far no luck. 
+## I don't think there is an easy way to do that, possibly try coding the dode for R1 and R2, e.g. defining xposition for each, then doing only having ggplot do the stack.  That is a bit of a pain, we can discuss this more next week with Kevin.
+
 #I am also still trying to figure out how to order the numbers correctly, I've been close but I haven't completely figured it out yet. (The X & Y values for AMEL seem to be messing that up a little, or it will be mostly in order except for one value)
-# ggplot(seq_df, aes(Allele, Allele_Calls, fill=Read)) +
-#     geom_bar(position="dodge", stat="identity") +
-#     facet_wrap(~Locus, scales = 'free_x') + 
-#     ylab("Coverage")
+ggplot(seq_df, aes(Allele, Allele_Calls, fill=Read)) +
+    geom_bar(position="dodge", stat="identity") +
+    facet_wrap(~Locus, scales = 'free_x') + 
+    ylab("Coverage")
+```
+```{r}
+## not the most elegant way to change the axis order but it works
+# replace x and y with 0 and 1
+library(stringr)
+allele_lables <- seq_df$Allele %>% 
+                    str_replace("X", "100") %>% 
+                    str_replace("Y", "1010") %>% 
+                    as.numeric() %>% 
+                    unique() %>% 
+                    sort() %>% 
+                    as.character() %>% 
+                    str_replace("100", "X") %>% 
+                    str_replace("1010", "Y")
+seq_df %<>% mutate(Allele_factored = factor(Allele, levels = allele_lables))
+    
+
+```
+
+```{r fig.height = 10}
+ggplot(seq_df, aes(Allele_factored, Allele_Calls, fill=Read)) +
+    geom_bar(position="dodge", stat="identity") +
+    facet_wrap(~Locus, scale = "free_x",ncol = 3) + 
+    ylab("Count") +
+    theme_bw()
+```
+
+For this plot I think we should remove singletons, i.e. alleles with only a single sequence, to clean up the x-axis. Unfortunately we do loose two alleles but we can figure a work abound for that.
+```{r fig.height = 10}
+seq_df %>% filter(Allele_Calls != 1) %>% # note this removes 3,000 observations
+    ggplot(aes(Allele_factored, Allele_Calls, fill=Read)) +
+    geom_bar(position="dodge", stat="identity") +
+    facet_wrap(~Locus, scale = "free_x",ncol = 3) + 
+    ylab("Count") +
+    theme_bw()
+    
 ```
 
