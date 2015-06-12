@@ -2,6 +2,7 @@
 library(dplyr)
 library(tidyr)
 library(magrittr)
+library(ggplot2)
 
 
 process_seqfile <- function(seq_file, read){
@@ -27,8 +28,7 @@ process_directory <- function(root_dir, paired = TRUE){
             
             }
             
-            # add second line for processing the txt file 
-            
+
         }
     }else{
         #%%TODO%%
@@ -36,27 +36,4 @@ process_directory <- function(root_dir, paired = TRUE){
     }
     df
 }
-
-
-
-process_directory2 <- function(root_dir, paired = TRUE){
-    df2 <- data_frame()
-    if(paired){
-        for(read in c("R1", "R2")){
-            directory <- paste0(root_dir,"/", read,"/")
-            for(txt_file in list.files(directory, "Allelecalls.txt",full.names = TRUE)){
-                df2 %<>% bind_rows(process_txtfile(txt_file,read))
-            }
-            
-        }
-    }else{
-        #%%TODO%%
-        warning("No code for unpaired read data")
-    }
-    df
-}
-
-
-
-
 
