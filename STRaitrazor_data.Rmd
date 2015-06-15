@@ -104,7 +104,7 @@ process_sequence <- function (locus, directory=".") {
 ```{r}
 seq_dir <- "/Users/sew/Downloads/H12-H-ZT80925_S96_L001_R1_001.fastq.STRaitRazor copy/PE_MiSeq_ALL"
 read_seq_dir <- paste0(seq_dir, "/R1/")
-loc_seq_dat <- process_sequence("D7S820", read_seq_dir)
+loc_seq_dat <- process_sequence("CSF1PO", read_seq_dir)
 ```
 
 
