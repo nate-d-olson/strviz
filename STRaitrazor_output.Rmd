@@ -5,7 +5,7 @@ output: html_document
 
 ######This graph is an analysis of data from the the output of STRaitrazor, a software that detects STR alleles from raw sequencing data. The DNA was sequenced both in the forward and reverse directions, and since the ends were paired, each was assigned a different read. The raw output from STRaightrazor contained information on the locus, the allele number, the number of bases, the coverage value, and the actual STR sequence itself.
 ######For each locus, the alleles that had coverage hits were graphed for each read, and compared side by side for comparison. 
-test
+
 
 ```{r, message=FALSE, echo = FALSE, warning=FALSE}
 source("process_straitrazor_output.R")
@@ -41,5 +41,83 @@ seq_df %>% filter(Allele_Calls != 1) %>%
     xlab("Allele") +
     ggtitle("Coverage Value by Locus") +
     theme_bw()
+```
+
+```{r, include=FALSE}
+setwd("/Users/sew/Desktop/strviz")
+str_dat <- read.csv(file="BracketNotation_A4-C-WA29594_S25_L001_R1_001.fastq.STRaitRazor_output.csv", header=TRUE, sep=",", stringsAsFactors = FALSE)
+
+library(dplyr)
+library(ggplot2)
+
+tbl_df(str_dat)
+
+str_dat2 <- slice(str_dat, 1:44)
+
+str_dat2$Locus <- as.character(str_dat2$Locus)
+
+suppressWarnings(str_dat2$Coverage.of.majority.peaks <- as.numeric(as.character(str_dat2$Coverage.of.majority.peaks)))
+
+str_dat2[is.na(str_dat2)] <- 0 
+
+str_dat2 <- str_dat2  %>%  group_by(Locus)  %>%  mutate(sum_coverage=sum(Coverage.of.majority.peaks))
+
+```
+
+
+######This graph shows the proportion of reads of of each allele for each individual locus.
+
+```{r, fig.height=7, fig.width=7, echo=FALSE}
+het_dat <- str_dat2 %>% group_by(Locus) %>% 
+              mutate(ratio = Coverage.of.majority.peaks/sum_coverage) %>% 
+              top_n(1, Coverage.of.majority.peaks)
+ggplot(data=het_dat, aes(x=Locus, y=ratio, color = Locus)) + 
+  geom_point(position = "identity", size=3) + 
+  guides(colour=FALSE) +
+  theme_bw() + 
+  theme(axis.text.x = element_text(angle = 60, hjust = 1)) +
+  geom_hline(aes(yintercept = 0.65), linetype = 2, color = "grey80") +
+  ylab("Ratio") + 
+  ylim(0,1) +
+  ggtitle("Heterozygote Balance")
+```
+
+
+
+##### This graph shows the comparison of the total coverage across all the loci with the horizontal line representing the median coverage value.
+
+```{r, echo=FALSE, fig.height = 5}
+ggplot(data=str_dat2, aes(x=Locus, y=sum_coverage, colour=Locus)) + 
+  geom_point(position = "identity", size=3) + 
+  guides(colour=FALSE) +
+  ylab("Total Coverage") +
+  theme(axis.text.x = element_text(angle = 60, hjust = 1)) +
+  xlab("Locus") +
+  ggtitle("Interlocus Balance") +
+  theme(aspect.ratio = .125) +
+  geom_hline(aes(yintercept=median(str_dat2$sum_coverage)), linetype = 2)#, color = "grey80")
+```
+
+
+```{r, echo=FALSE}
+het_dat2 <- het_dat[,-c(3:13)]
+het_dat2 <- rename(het_dat2, "Total Coverage" = sum_coverage)
+het_dat2 <- rename(het_dat2, "Heterozygote Balance" = ratio)
+het_dat2[,4] <- round(het_dat2[,4], digits = 4)
+library(DT)
+datatable(het_dat2)
+
+```
+
+```{r, echo=FALSE}
+str_dat2 <- str_dat2[,-c(5,6,8,14)]
+str_dat2 <- rename(str_dat2, "Forward Bracket Notation" = Foward.Bracket.Notation)
+str_dat2 <- rename(str_dat2, "Reverse Bracket Notation" = Reverse.Bracket.Notation)
+str_dat2 <- rename(str_dat2, "Reverse Complement" = Reverse.complement.)
+str_dat2 <- rename(str_dat2, "Read Bias" = Read.bias)
+str_dat2 <- rename(str_dat2, "Stutter Ratio" = Stutter.ratio)
+str_dat2 <- rename(str_dat2, "Stutter Coverage" = Stutter.coverage)
+str_dat2 <- rename(str_dat2, "Percentage of Non Majority Peaks" = Percentage.of.non.majority.peaks)
+datatable(str_dat2)
 ```
 
