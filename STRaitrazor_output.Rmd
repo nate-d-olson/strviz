@@ -5,6 +5,7 @@ output: html_document
 
 ######This graph is an analysis of data from the the output of STRaitrazor, a software that detects STR alleles from raw sequencing data. The DNA was sequenced both in the forward and reverse directions, and since the ends were paired, each was assigned a different read. The raw output from STRaightrazor contained information on the locus, the allele number, the number of bases, the coverage value, and the actual STR sequence itself.
 ######For each locus, the alleles that had coverage hits were graphed for each read, and compared side by side for comparison. 
+test
 
 ```{r, message=FALSE, echo = FALSE, warning=FALSE}
 source("process_straitrazor_output.R")
