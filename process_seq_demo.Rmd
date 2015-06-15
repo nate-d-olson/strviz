@@ -7,13 +7,13 @@ output: html_document
 ## Objective
 Develop code for batch processing txt and seqeunces files generated from STRaitRazor
 
-```{r, message=FALSE, warning=FALSE}
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
 source("process_straitrazor_output.R")
 ``` 
 
 Note the warning messages, these are for empty files, used the try() function to skip them
 
-```{r warning=FALSE}
+```{r warning=FALSE, echo=FALSE}
 seq_df <- process_sequences_directory("H12-H-ZT80925_S96_L001_R1_001.fastq.STRaitRazor/PE_MiSeq_ALL/")
 allelecalls_df <- process_allelecalls_directory("H12-H-ZT80925_S96_L001_R1_001.fastq.STRaitRazor/PE_MiSeq_ALL/")
 ```
