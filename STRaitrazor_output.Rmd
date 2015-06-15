@@ -1,0 +1,44 @@
+---
+title: "STRaitrazor Analysis"
+output: html_document
+---
+
+######This graph is an analysis of data from the the output of STRaitrazor, a software that detects STR alleles from raw sequencing data. The DNA was sequenced both in the forward and reverse directions, and since the ends were paired, each was assigned a different read. The raw output from STRaightrazor contained information on the locus, the allele number, the number of bases, the coverage value, and the actual STR sequence itself.
+######For each locus, the alleles that had coverage hits were graphed for each read, and compared side by side for comparison. 
+
+```{r, message=FALSE, echo = FALSE, warning=FALSE}
+source("process_straitrazor_output.R")
+``` 
+
+
+```{r, warning=FALSE, error=FALSE, echo=FALSE, message=FALSE}
+seq_df <- process_sequences_directory("H12-H-ZT80925_S96_L001_R1_001.fastq.STRaitRazor/PE_MiSeq_ALL/")
+allelecalls_df <- process_allelecalls_directory("H12-H-ZT80925_S96_L001_R1_001.fastq.STRaitRazor/PE_MiSeq_ALL/")
+```
+
+```{r, echo=FALSE, message=FALSE}
+library(stringr)
+allele_lables <- seq_df$Allele %>% 
+                    str_replace("X", "100") %>% 
+                    str_replace("Y", "1010") %>% 
+                    as.numeric() %>% 
+                    unique() %>% 
+                    sort() %>% 
+                    as.character() %>% 
+                    str_replace("100", "X") %>% 
+                    str_replace("1010", "Y")
+seq_df %<>% mutate(Allele_factored = factor(Allele, levels = allele_lables))
+```
+
+
+```{r fig.height = 10, echo=FALSE}
+seq_df %>% filter(Allele_Calls != 1) %>% 
+    ggplot(aes(Allele_factored, Allele_Calls, fill=Read)) +
+    geom_bar(position="dodge", stat="identity") +
+    facet_wrap(~Locus, scale = "free_x",ncol = 3) + 
+    ylab("Coverage Count") +
+    xlab("Allele") +
+    ggtitle("Coverage Value by Locus") +
+    theme_bw()
+```
+
