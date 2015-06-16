@@ -2,9 +2,11 @@
 title: "STRaitrazor Analysis"
 output: html_document
 ---
+### Data source
+Summary analysis of data from STRaitrazor, a software that detects STR alleles from raw sequencing data. The DNA was sequenced both in the forward and reverse directions, and since the ends were paired, each was assigned a different read. The raw output from STRaightrazor contained information on the locus, the allele number, the number of bases, the coverage value, and the actual STR sequence itself.
 
-######This graph is an analysis of data from the the output of STRaitrazor, a software that detects STR alleles from raw sequencing data. The DNA was sequenced both in the forward and reverse directions, and since the ends were paired, each was assigned a different read. The raw output from STRaightrazor contained information on the locus, the allele number, the number of bases, the coverage value, and the actual STR sequence itself.
-######For each locus, the alleles that had coverage hits were graphed for each read, and compared side by side for comparison. 
+#### Locus Counts
+For each locus, the alleles that had coverage hits were graphed for each read, and compared side by side for comparison. 
 
 
 ```{r, message=FALSE, echo = FALSE, warning=FALSE}
@@ -44,7 +46,6 @@ seq_df %>% filter(Allele_Calls != 1) %>%
 ```
 
 ```{r, include=FALSE}
-setwd("/Users/sew/Desktop/strviz")
 str_dat <- read.csv(file="BracketNotation_A4-C-WA29594_S25_L001_R1_001.fastq.STRaitRazor_output.csv", header=TRUE, sep=",", stringsAsFactors = FALSE)
 
 library(dplyr)
@@ -65,7 +66,8 @@ str_dat2 <- str_dat2  %>%  group_by(Locus)  %>%  mutate(sum_coverage=sum(Coverag
 ```
 
 
-######This graph shows the proportion of reads of of each allele for each individual locus.
+#### Read proportion by Locus
+This graph shows the proportion of reads of of each allele for each individual locus.
 
 ```{r, fig.height=7, fig.width=7, echo=FALSE}
 het_dat <- str_dat2 %>% group_by(Locus) %>% 
@@ -84,9 +86,14 @@ ggplot(data=het_dat, aes(x=Locus, y=ratio, color = Locus)) +
 
 
 
+<<<<<<< HEAD
 ######This graph shows the comparison of the total coverage across all the loci with the horizontal line representing the median coverage value.
+=======
+#### Comparison of total coverage across loci
+This graph shows the comparison of the total coverage across all the loci with the horizontal line representing the median coverage value.
+>>>>>>> a05abf40afba9ba701f3ee78dc22901d4719582c
 
-```{r, echo=FALSE, fig.height = 5}
+```{r, echo=FALSE, fig.height = 7}
 ggplot(data=str_dat2, aes(x=Locus, y=sum_coverage, colour=Locus)) + 
   geom_point(position = "identity", size=3) + 
   guides(colour=FALSE) +
@@ -94,11 +101,17 @@ ggplot(data=str_dat2, aes(x=Locus, y=sum_coverage, colour=Locus)) +
   theme(axis.text.x = element_text(angle = 60, hjust = 1)) +
   xlab("Locus") +
   ggtitle("Interlocus Balance") +
-  theme(aspect.ratio = .125) +
-  geom_hline(aes(yintercept=median(str_dat2$sum_coverage)), linetype = 2)#, color = "grey80")
+  theme_bw() +
+  # theme(aspect.ratio = .125) +
+  geom_hline(aes(yintercept=median(str_dat2$sum_coverage)), linetype = 2, color = "grey80") 
 ```
 
+<<<<<<< HEAD
 ######These table show the information graphs as well as additional data recorded.
+=======
+## Table 1
+Table description
+>>>>>>> a05abf40afba9ba701f3ee78dc22901d4719582c
 ```{r, echo=FALSE}
 het_dat2 <- het_dat[,-c(3:13)]
 het_dat2 <- rename(het_dat2, "Total Coverage" = sum_coverage)
@@ -109,6 +122,8 @@ datatable(het_dat2)
 
 ```
 
+## Table 2
+Table description
 ```{r, echo=FALSE}
 str_dat2 <- str_dat2[,-c(5,6,8,14)]
 str_dat2 <- rename(str_dat2, "Forward Bracket Notation" = Foward.Bracket.Notation)
