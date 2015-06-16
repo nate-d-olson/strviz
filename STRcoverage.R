@@ -1,4 +1,4 @@
-setwd("/Users/sew/Downloads/H12-H-ZT80925_S96_L001_R1_001.fastq.STRaitRazor copy/PE_MiSeq_ALL/R1")v
+setwd("/Users/sew/Downloads/H12-H-ZT80925_S96_L001_R1_001.fastq.STRaitRazor copy/PE_MiSeq_ALL/R1")
 loc_dat <- read.table(file="Amel.sequences", header=FALSE, sep="\t")
 library(dplyr)
 library(tidyr)

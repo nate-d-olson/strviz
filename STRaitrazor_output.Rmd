@@ -84,7 +84,7 @@ ggplot(data=het_dat, aes(x=Locus, y=ratio, color = Locus)) +
 
 
 
-##### This graph shows the comparison of the total coverage across all the loci with the horizontal line representing the median coverage value.
+######This graph shows the comparison of the total coverage across all the loci with the horizontal line representing the median coverage value.
 
 ```{r, echo=FALSE, fig.height = 5}
 ggplot(data=str_dat2, aes(x=Locus, y=sum_coverage, colour=Locus)) + 
@@ -98,7 +98,7 @@ ggplot(data=str_dat2, aes(x=Locus, y=sum_coverage, colour=Locus)) +
   geom_hline(aes(yintercept=median(str_dat2$sum_coverage)), linetype = 2)#, color = "grey80")
 ```
 
-
+######These table show the information graphs as well as additional data recorded.
 ```{r, echo=FALSE}
 het_dat2 <- het_dat[,-c(3:13)]
 het_dat2 <- rename(het_dat2, "Total Coverage" = sum_coverage)
@@ -115,6 +115,7 @@ str_dat2 <- rename(str_dat2, "Forward Bracket Notation" = Foward.Bracket.Notatio
 str_dat2 <- rename(str_dat2, "Reverse Bracket Notation" = Reverse.Bracket.Notation)
 str_dat2 <- rename(str_dat2, "Reverse Complement" = Reverse.complement.)
 str_dat2 <- rename(str_dat2, "Read Bias" = Read.bias)
+str_dat2 <- rename(str_dat2, "Strand Bias" = Strand.bias)
 str_dat2 <- rename(str_dat2, "Stutter Ratio" = Stutter.ratio)
 str_dat2 <- rename(str_dat2, "Stutter Coverage" = Stutter.coverage)
 str_dat2 <- rename(str_dat2, "Percentage of Non Majority Peaks" = Percentage.of.non.majority.peaks)
