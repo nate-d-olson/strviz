@@ -1,5 +1,6 @@
 revcom <- function(sequence) {
-    sapply(lapply(strsplit(sequence, NULL), rev), paste, collapse="")
-    chartr("ATGC", "TACG", sequence)
+    reverse <- sapply(lapply(strsplit(sequence, NULL), rev), paste, collapse="") 
+    complement <- chartr("ATGC", "TACG", reverse)
+    return(complement)
     
 }
