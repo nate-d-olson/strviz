@@ -10,11 +10,13 @@ For each locus, the alleles that had coverage hits were graphed for each read, a
 
 
 ```{r, message=FALSE, echo = FALSE, warning=FALSE}
+#This will call the file that contains the functions for uploading and processing the data
 source("process_straitrazor_output.R")
 ``` 
 
 
 ```{r, warning=FALSE, error=FALSE, echo=FALSE, message=FALSE}
+#This will create two data frames, one for the . sequences files and one for the .allelcalls files
 seq_df <- process_sequences_directory("H12-H-ZT80925_S96_L001_R1_001.fastq.STRaitRazor/PE_MiSeq_ALL/")
 allelecalls_df <- process_allelecalls_directory("H12-H-ZT80925_S96_L001_R1_001.fastq.STRaitRazor/PE_MiSeq_ALL/")
 ```
@@ -86,32 +88,27 @@ ggplot(data=het_dat, aes(x=Locus, y=ratio, color = Locus)) +
 
 
 
-<<<<<<< HEAD
-######This graph shows the comparison of the total coverage across all the loci with the horizontal line representing the median coverage value.
-=======
-#### Comparison of total coverage across loci
-This graph shows the comparison of the total coverage across all the loci with the horizontal line representing the median coverage value.
->>>>>>> a05abf40afba9ba701f3ee78dc22901d4719582c
+#### Interlocus Balance
+This graph shows the total number of reads as a comparison between loci.
 
 ```{r, echo=FALSE, fig.height = 7}
 ggplot(data=str_dat2, aes(x=Locus, y=sum_coverage, colour=Locus)) + 
   geom_point(position = "identity", size=3) + 
   guides(colour=FALSE) +
   ylab("Total Coverage") +
+  theme_bw() +
   theme(axis.text.x = element_text(angle = 60, hjust = 1)) +
   xlab("Locus") +
   ggtitle("Interlocus Balance") +
-  theme_bw() +
-  # theme(aspect.ratio = .125) +
   geom_hline(aes(yintercept=median(str_dat2$sum_coverage)), linetype = 2, color = "grey80") 
 ```
 
-<<<<<<< HEAD
-######These table show the information graphs as well as additional data recorded.
-=======
+
+######These tables show the information graphs as well as additional data recorded.
+
 ## Table 1
-Table description
->>>>>>> a05abf40afba9ba701f3ee78dc22901d4719582c
+
+
 ```{r, echo=FALSE}
 het_dat2 <- het_dat[,-c(3:13)]
 het_dat2 <- rename(het_dat2, "Total Coverage" = sum_coverage)
@@ -123,7 +120,7 @@ datatable(het_dat2)
 ```
 
 ## Table 2
-Table description
+
 ```{r, echo=FALSE}
 str_dat2 <- str_dat2[,-c(5,6,8,14)]
 str_dat2 <- rename(str_dat2, "Forward Bracket Notation" = Foward.Bracket.Notation)
