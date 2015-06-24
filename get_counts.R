@@ -1,6 +1,7 @@
 ## geting seq counts for R1, R2 and directions 1 and 2
 source("process_straitrazor_output.R")
 source("revcom.R")
+
 seq_dir <- "H12-H-ZT80925_S96_L001_R1_001.fastq.STRaitRazor/PE_MiSeq_ALL/"
 seq_df <- process_sequences_directory(seq_dir) %>%  
             mutate(rev_seq = revcom(Sequence)) %>% 
@@ -11,7 +12,7 @@ seq_D2 <- seq_df %>%
                        Sequence = rev_seq, 
                        D2_R1 = R1, D2_R2 = R2)
 
-seq_D1<- seq_df %>% rename(D1_R1 = R1, D1_R2 = R2)
+seq_D1 <- seq_df %>% rename(D1_R1 = R1, D1_R2 = R2)
 
 seq_D1D2 <- left_join(seq_D1, seq_D2)
 
@@ -32,7 +33,8 @@ remove_duplicates <- function (str_count_df) {
 }
 
 
-#This is just how I made sure that the allele calls were all equal...I will eventually turn this into a function
+#This is just how I made sure that the allele calls were all equal... will eventually turn this into a function
+
 seq_df[is.na(seq_df)] <- 0
 seq_df <- mutate(seq_df, sum = R1+R2)
 test1 <- seq_df  %>%  group_by(Locus, Allele)  %>%  summarise(sum(sum))
