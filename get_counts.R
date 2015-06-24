@@ -24,6 +24,8 @@ for(i in unique(seq_count$Locus)){
     new_seq <- bind_rows(new_seq, locus_seq)
 }
 
+new_seq$sum <- (new_seq$D2_R1 + new_seq$D2_R2 + new_seq$D1_R1 + new_seq$D1_R2)
+new_seq2 <- new_seq  %>% group_by(Locus)  %>%  top_n(2)
 
 #This is just how I made sure that the allele calls were all equal... will eventually turn this into a function
 
