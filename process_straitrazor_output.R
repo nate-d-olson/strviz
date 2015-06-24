@@ -10,18 +10,22 @@ library(ggplot2)
 ### and compiling into a single data frame
 ###
 process_sequence_file <- function(seq_file, read){
+    #This will output a warning if the file is empty and therefore not upload it.
     df <- try(read.table(seq_file,sep ="\t", stringsAsFactors=F))
     if(class(df)=='try-error') {
         warning(paste0(seq_file, "is empty"))
         return()
     }
+    #This will separate the first comlum into two (one for Locus and one for Allele number), rename
+    #the rest of the columns, and add a new column that contains the read (R1 or R2)
     read.table(file=seq_file, header=FALSE, sep="\t") %>% 
         separate(V1, into = c("Locus", "Allele"), sep = ":") %>% 
         rename(Allele_Calls = V4, Size = V2, Sequence = V3) %>% 
         mutate(Allele_Calls = as.integer(Allele_Calls), Read = read)
 }
 
-
+    #This function will bind all the rows together to make one giant data frame
+    #containing all the information for the .sequence files. 
 process_sequences_directory <- function(root_dir, paired = TRUE){
     df <- data_frame()
     if(paired){
@@ -31,6 +35,8 @@ process_sequences_directory <- function(root_dir, paired = TRUE){
                 df %<>% bind_rows(process_sequence_file(seq_file,read))
             }
         }
+   #This is what to do if there is only a R1 in the initial data
+   #There is currently no code written for this option
     }else{
         #%%TODO%%
         warning("No code for unpaired read data")
