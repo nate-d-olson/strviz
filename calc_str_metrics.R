@@ -9,7 +9,8 @@ allele_counts_df <- str_allele_counts(seq_df)
 
 str_allele_counts_test(seq_df, allele_counts_df)
 
-#preliminary code for genotype calls
+#preliminary code for genotype calls (.2 can be changed to any other ratio if needed)
 
 new_seq$sum <- (new_seq$D2_R1 + new_seq$D2_R2 + new_seq$D1_R1 + new_seq$D1_R2)
 new_seq2 <- new_seq  %>% group_by(Locus)  %>%  top_n(2)
+new_seq2 <- new_seq2 %>% group_by(Locus) %>% mutate(Genotype = ifelse(min(sum)/max(sum) > 0.2, "Heterogyzous", "Homozygous"))
