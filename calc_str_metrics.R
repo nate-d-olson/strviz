@@ -9,7 +9,7 @@ allele_counts_df <- str_allele_counts(seq_df)
 
 str_allele_counts_test(seq_df, allele_counts_df)
 
-#Creates new DF with only majority peaks 
+#Creates new data frame with only majority peaks  
 new_seq <- seq_df
 new_seq[is.na(new_seq)] <- 0
 new_seq$Coverage_of_Majority_Peaks <- (new_seq$D2_R1 + new_seq$D2_R2 + new_seq$D1_R1 + new_seq$D1_R2)
