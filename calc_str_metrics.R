@@ -46,7 +46,7 @@ new_seq2 <- new_seq2 %>%
     rowwise() %>%
     mutate(Strand_Bias = min(c(Sum_D1, Sum_D2))/Coverage_of_Majority_Peaks)
 
-#Prelimiary coverage of non majority peaks (need to figure out how to do this all in one data frame)
+#Prelimiary coverage of non majority peaks (need to figure out how to do this all in one data frame, and not include the stutter alleles)
 new_seq3 <- new_seq  %>% 
 group_by(Locus, Allele)  %>%  
 mutate(Percentage_of_non_Majority_peaks = (sum(Coverage_of_Majority_Peaks)-max(Coverage_of_Majority_Peaks))/(sum(Coverage_of_Majority_Peaks)))
