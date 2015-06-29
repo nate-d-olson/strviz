@@ -1,26 +1,22 @@
-## Workflow for calculating sequece metrics
-source("process_straitrazor_output.R")
-source("get_counts.R")
 
-seq_dir <- "H12-H-ZT80925_S96_L001_R1_001.fastq.STRaitRazor/PE_MiSeq_ALL/"
 
-seq_df <- process_sequences_directory(seq_dir)
-allele_counts_df <- str_allele_counts(seq_df)
-
-str_allele_counts_test(seq_df, allele_counts_df)
-
-#Creates new data frame with only majority peaks  
-new_seq <- seq_df
-new_seq[is.na(new_seq)] <- 0
-new_seq$Coverage_of_Majority_Peaks <- (new_seq$D2_R1 + new_seq$D2_R2 + new_seq$D1_R1 + new_seq$D1_R2)
-new_seq2 <- new_seq  %>% 
-    group_by(Locus)  %>%  
-        top_n(2)
+## Description: Creates new data frame with only majority peaks  
+## Input
+## Output
+cov_maj_peaks <- function (allele_counts_df) {
+    allele_counts_df[is.na(allele_counts_df)] <- 0
+    allele_counts_df$Coverage_of_Majority_Peaks <- (allele_counts_df$D2_R1 + allele_counts_df$D2_R2 + allele_counts_df$D1_R1 + allele_counts_df$D1_R2)
+    allele_counts_df  %>% 
+                    group_by(Locus)  %>%  
+                    top_n(2)
+}
 
 #preliminary code for genotype calls (.2 can be changed to any other ratio if needed)
-new_seq2 <- new_seq2 %>% 
-    group_by(Locus) %>% 
-    mutate(Genotype = ifelse(min(Coverage_of_Majority_Peaks)/max(Coverage_of_Majority_Peaks) > 0.2, "Heterogyzous", "Homozygous"))
+genotype_call <- function (maj_peak_df) {
+    maj_peak_df %>% 
+      group_by(Locus) %>% 
+      mutate(Genotype = ifelse(min(Coverage_of_Majority_Peaks)/max(Coverage_of_Majority_Peaks) > 0.2, "Heterogyzous", "Homozygous"))
+}
 
 #preliminary code for PHR
 
@@ -55,3 +51,8 @@ new_seq3 <- new_seq  %>%
 group_by(Locus, Allele)  %>%  
 mutate(Percentage_of_non_Majority_peaks = (sum(Coverage_of_Majority_Peaks)-max(Coverage_of_Majority_Peaks))/(sum(Coverage_of_Majority_Peaks)))
                
+
+calc_allele_metrics <- function(allele_counts_df){
+    cov_maj_peaks(allele_counts_df) %>% 
+        genotype_call() %>% 
+}
