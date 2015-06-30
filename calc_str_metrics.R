@@ -20,8 +20,8 @@ genotype_call <- function (maj_peak_df) {
 
 #preliminary code for PHR
 
-PHR <- function (genotype_call) {
-      genotype_call %>% 
+PHR <- function (genotype_call_df) {
+      genotype_call_df %>% 
       group_by(Locus) %>% 
       mutate(PHR =  ifelse((min(Coverage_of_Majority_Peaks)/max(Coverage_of_Majority_Peaks))> .2,
                            round((min(Coverage_of_Majority_Peaks)/max(Coverage_of_Majority_Peaks)),4), NA_real_))
@@ -29,36 +29,33 @@ PHR <- function (genotype_call) {
 
 
 #preliminary code for Read Bias
-Read_bias <- function(PHR) {
-        ungroup(PHR) 
-      mutate(Sum_R1 = (D2_R1 + D1_R1))
-      mutate(Sum_R2 = (D2_R2 + D1_R2))
+Read_bias <- function(PHR_df) {
+    ungroup(PHR_df) %>% 
+      mutate(Sum_R1 = (D2_R1 + D1_R1)) %>% 
+      mutate(Sum_R2 = (D2_R2 + D1_R2)) %>% 
       rowwise() %>%
       mutate(Read_Bias = min(c(Sum_R1, Sum_R2))/Coverage_of_Majority_Peaks)
 }
 
 
 #preliminary code for Strand Bias
-Strand_bias <- function (Read_bias) {
-  Read_bias %>% 
-      mutate(Sum_D1 = (D1_R1 + D1_R2))
-  Read_bias %>%  
-      mutate(Sum_D2 = (D2_R1 + D2_R2))
-  Read_bias %>%
+Strand_bias <- function (Read_bias_df) {
+  Read_bias_df %>% 
+      mutate(Sum_D1 = (D1_R1 + D1_R2),Sum_D2 = (D2_R1 + D2_R2)) %>% 
       rowwise() %>%
       mutate(Strand_Bias = min(c(Sum_D1, Sum_D2))/Coverage_of_Majority_Peaks)
 }
 
 #Prelimiary coverage of non majority peaks (need to figure out how to do this all in one data frame, and not include the stutter alleles)
-new_seq3 <- new_seq  %>% 
-group_by(Locus, Allele)  %>%  
-mutate(Percentage_of_non_Majority_peaks = (sum(Coverage_of_Majority_Peaks)-max(Coverage_of_Majority_Peaks))/(sum(Coverage_of_Majority_Peaks)))
-               
+# new_seq3 <- new_seq  %>% 
+# group_by(Locus, Allele)  %>%  
+# mutate(Percentage_of_non_Majority_peaks = (sum(Coverage_of_Majority_Peaks)-max(Coverage_of_Majority_Peaks))/(sum(Coverage_of_Majority_Peaks)))
+#                
 
 calc_allele_metrics <- function(allele_counts_df){
     cov_maj_peaks(allele_counts_df) %>% 
-        genotype_call(maj_peaks_df) %>% 
-        PHR(genotype_call) %>% 
-        Read_bias(PHR) %>% 
-        Strand_bias(Read_bias)
+        genotype_call() %>% 
+        PHR() %>% 
+        Read_bias() %>% 
+        Strand_bias()
 }
