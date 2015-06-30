@@ -64,10 +64,12 @@ Strand_bias <- function (Read_bias_df) {
 
 
 #Prelimiary coverage of non majority peaks (need to figure out how to do this all in one data frame, and not include the stutter alleles)
- new_seq3 <- allele_counts_df  %>% 
-group_by(Locus, Allele)  %>%  
-mutate(Percentage_of_non_Majority_peaks = (sum(Coverage_of_Majority_Peaks)-max(Coverage_of_Majority_Peaks))/(sum(Coverage_of_Majority_Peaks)))
-#                
+non_maj_peaks <- function (allele_counts_df) {
+    group_by(Locus, Allele) %>% 
+    mutate(Percentage_of_non_Majority_peaks = (sum(Coverage_of_Majority_Peaks)-max(Coverage_of_Majority_Peaks))/(sum(Coverage_of_Majority_Peaks)))
+   #I want to make a df with all the counts only for the top 2 alleles, after I have that the mutate function properly calcuates the non maj peaks ratio  
+}
+             
 
 calc_allele_metrics <- function(allele_counts_df){
     cov_maj_peaks(allele_counts_df) %>% 
