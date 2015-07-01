@@ -87,7 +87,6 @@ non_maj_peaks <- function (allele_counts_df) {
         rowwise() %>% 
         mutate(Percentage_of_non_Majority_peaks = 
                    (Allele_Coverage - Seq_Coverage)/Allele_Coverage)
-
 }
              
 
