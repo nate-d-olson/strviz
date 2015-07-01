@@ -8,6 +8,7 @@ seq_dir <- "H12-H-ZT80925_S96_L001_R1_001.fastq.STRaitRazor/PE_MiSeq_ALL/"
 seq_df <- process_sequences_directory(seq_dir)
 allele_counts_df <- str_allele_counts(seq_df)
 
+
 str_allele_counts_test(seq_df, allele_counts_df)
 
 allele_metrics_df <- calc_allele_metrics(allele_counts_df)
