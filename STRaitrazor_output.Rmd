@@ -21,7 +21,7 @@ seq_df <- process_sequences_directory("H12-H-ZT80925_S96_L001_R1_001.fastq.STRai
 allelecalls_df <- process_allelecalls_directory("H12-H-ZT80925_S96_L001_R1_001.fastq.STRaitRazor/PE_MiSeq_ALL/")
 ```
 
-$a / b$
+$\frac{a}{b}$
 
 ```{r, echo=FALSE, message=FALSE}
 library(stringr)
