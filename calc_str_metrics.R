@@ -8,12 +8,18 @@ peak_coverage <- function (allele_counts_df) {
     allele_counts_df[is.na(allele_counts_df)] <- 0
     allele_counts_df %>% 
         rowwise() %>% 
-        mutate(Peak_Coverage = sum(D2_R1, D2_R2, D1_R1, D1_R2)) %>% 
+        mutate(Sum_R1 = (D2_R1 + D1_R1),
+               Sum_R2 = (D2_R2 + D1_R2),
+               Sum_D1 = (D1_R1 + D1_R2),
+               Sum_D2 = (D2_R1 + D2_R2),
+               Seq_Coverage = sum(D2_R1, D2_R2, D1_R1, D1_R2)) %>% 
+        group_by(Allele,Locus) %>% 
+        mutate(Allele_Coverage = sum(Seq_Coverage)) %>% 
         # changed to peak coverage as it represents the coverage for the 
         # peak and not the coverage of the majority peaks coverage
         group_by(Locus) %>% 
-        mutate(Total_Coverage = sum(Peak_Coverage)) %>% 
-        top_n(n = 2, wt = Peak_Coverage)
+        mutate(Locus_Coverage = sum(Seq_Coverage)) %>% 
+        top_n(n = 2, wt = Seq_Coverage)
 }
 #Want to NA out all homozygous stutter counts
 
@@ -29,12 +35,14 @@ peak_coverage <- function (allele_counts_df) {
 genotype_call <- function (peak_cov_df, gt_threshold = 0.2) {
     peak_cov_df %>% 
       group_by(Locus) %>% 
-      mutate(Genotype = ifelse(min(Peak_Coverage)/max(Peak_Coverage) > gt_threshold, 
-                               "Heterogyzous", "Homozygous"),
-             Coverage_of_Majority_Peaks = ifelse(Genotype == "Heterozygous", 
-                                            sum(Peak_Coverage), 
-                                            max(Peak_Coverage)))
+      mutate(Genotype = ifelse(min(Seq_Coverage)/max(Seq_Coverage) > gt_threshold, 
+                               "Heterogyzous", "Homozygous"))
+#              ,Coverage_of_Majority_Peaks = ifelse(Genotype == "Heterozygous", 
+#                                             sum(Seq_Coverage), 
+#                                             max(Seq_Coverage)))
 }
+
+
 
 ## Description: Assigns a peak height ratio to each heterozygous locus based on the top two peaks.
 ## Input: Data frame with only top two allele counts per locus, and genotype call.
@@ -42,8 +50,8 @@ genotype_call <- function (peak_cov_df, gt_threshold = 0.2) {
 peak_height_ratio <- function (genotype_call_df) {
       genotype_call_df %>% 
         group_by(Locus) %>% 
-        mutate(peak_height_ratio =  ifelse((min(Coverage_of_Majority_Peaks)/max(Coverage_of_Majority_Peaks))> .2,
-                           round((min(Coverage_of_Majority_Peaks)/max(Coverage_of_Majority_Peaks)),4), NA_real_))
+        mutate(peak_height_ratio =  ifelse((min(Seq_Coverage)/max(Seq_Coverage))> .2,
+                           round((min(Seq_Coverage)/max(Seq_Coverage)),4), NA_real_))
 }
 
 ## Description: Assigns a read bias to each allele (two for heterzygotes and
@@ -54,10 +62,8 @@ peak_height_ratio <- function (genotype_call_df) {
 
 read_bias <- function(peak_height_ratio_df) {
     ungroup(peak_height_ratio_df) %>% 
-      mutate(Sum_R1 = (D2_R1 + D1_R1)) %>% 
-      mutate(Sum_R2 = (D2_R2 + D1_R2)) %>% 
       rowwise() %>%
-      mutate(Read_Bias = min(c(Sum_R1, Sum_R2))/Coverage_of_Majority_Peaks)
+      mutate(Read_Bias = min(c(Sum_R1, Sum_R2))/Seq_Coverage)
 }
 #Want to NA out all homozygous stutter counts
 
@@ -68,9 +74,8 @@ read_bias <- function(peak_height_ratio_df) {
 
 strand_bias <- function (read_bias_df) {
   read_bias_df %>% 
-      mutate(Sum_D1 = (D1_R1 + D1_R2),Sum_D2 = (D2_R1 + D2_R2)) %>% 
       rowwise() %>%
-      mutate(Strand_Bias = min(c(Sum_D1, Sum_D2))/Coverage_of_Majority_Peaks)
+      mutate(Strand_Bias = min(c(Sum_D1, Sum_D2))/Seq_Coverage)
 }
 #Want to NA out all homozygous stutter counts
 
@@ -79,9 +84,9 @@ strand_bias <- function (read_bias_df) {
 #all in one data frame, and not include the stutter alleles)
 non_maj_peaks <- function (allele_counts_df) {
     allele_counts_df %>% 
-        group_by(Locus, Allele) %>% 
+        rowwise() %>% 
         mutate(Percentage_of_non_Majority_peaks = 
-                   (Total_Coverage - Coverage_of_Majority_Peaks)/Total_Coverage)
+                   (Allele_Coverage - Seq_Coverage)/Allele_Coverage)
    #I want to make a df with all the counts only for the top 2 alleles, after I
    #have that the mutate function properly calcuates the non maj peaks ratio
     # uses total coverage calculated in the peak_coverage function
