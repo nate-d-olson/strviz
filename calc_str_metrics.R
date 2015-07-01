@@ -87,9 +87,7 @@ non_maj_peaks <- function (allele_counts_df) {
         rowwise() %>% 
         mutate(Percentage_of_non_Majority_peaks = 
                    (Allele_Coverage - Seq_Coverage)/Allele_Coverage)
-   #I want to make a df with all the counts only for the top 2 alleles, after I
-   #have that the mutate function properly calcuates the non maj peaks ratio
-    # uses total coverage calculated in the peak_coverage function
+
 }
              
 
