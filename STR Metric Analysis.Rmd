@@ -1,0 +1,46 @@
+---
+title: "STR Metric Analysis"
+output: html_document
+---
+
+When analyzing STR data from STRaitrazor2.0, it is important to calculate various metrics that are pertinent to the data anlysis process. This document explains what those metrics are, how they are mathematically calculated, and contains the R code that was used to extract each metic from the orginial data frame. 
+
+```{r}
+source("calc_str_metrics.R")
+```
+
+### Genotype Call 
+
+Below is the function used to determine whether a specific locus is heterozygous or homozygous. This is done first by isolating the two peaks per locus with the highest coverage. After that the following calcualtion is applied
+
+#######  $\frac{minimum\:coverage}{maximum\:coverage}$ 
+If this ratio is greater than the adjustable genotype threshold (in this case .2) then the locus is considered to be heterozygous. 
+If the ratio is less than the threshold, it is considered to be homozygous. A ratio smaller than the threshold of .2 means that the smaller peak is less than 20% the size of the larger peak, thus making it much more likey to be considered stutter from the major allele, as opposed to another whole peak.  
+```{r}
+genotype_call
+```
+
+### Peak Height Ratio 
+
+Below is the funcion used to determine the peak heigh ratio between the top two peaks. This is calcualted the same way that genotype call is detemined 
+
+#######  $\frac{minimum\:coverage}{maximum\:coverage}$ 
+However if the value is above the threshold (heterozygous), the output is the value itself, and if is below the threshold (homozygous) the output is simply an NA, since the ratio between a main peak and its stutter is not the peak height ratio. 
+
+```{r}
+peak_height_ratio
+```
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r}
+summary(cars)
+```
+
+You can also embed plots, for example:
+
+```{r, echo=FALSE}
+plot(cars)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
