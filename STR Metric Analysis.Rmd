@@ -32,3 +32,37 @@ However if the value is above the threshold (heterozygous), the output is the va
 ```{r}
 peak_height_ratio
 ```
+
+
+### Read Bias
+
+Below is the function used to determine the read bias for each majority peak allele. This is done by first summing all the coverage values for R1 and R2 seperately.  Then the following is calcualted: 
+
+#######  $\frac{minimum\:read\:coverage}{total\:coverage}$ 
+Where whichever read has a smaller coverage is divided by the sum of the two reads coverages, or the total coverage for that sequence. 
+
+```{r}
+read_bias
+```
+
+
+### Strand Bias
+
+Below is the function used to determine the strand bias for each majority peak allele. This is done by first summing all the coverage values for D1 and D2 seperately.  Then the following is calcualted: 
+
+#######  $\frac{minimum\:direction\:coverage}{total\:coverage}$ 
+Where whichever direction has a smaller coverage is divided by the sum of the two directions coverages, or the total coverage for that sequence. 
+
+```{r}
+strand_bias
+```
+
+### Coverage of Non-Majority Peaks
+
+Below is the function used to determine the percent of peaks for each allele that were not part of the majority peak. The following is calculated to achieve this value.
+
+#######  $\frac{total\:allele\:coverage\:-\:max\:allele\:coverage}{total\:allele\:coverage}$ 
+
+```{r}
+non_maj_peaks
+```
