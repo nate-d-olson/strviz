@@ -47,10 +47,10 @@ genotype_call <- function (peak_cov_df, gt_threshold = 0.2) {
 ## Description: Assigns a peak height ratio to each heterozygous locus based on the top two peaks.
 ## Input: Data frame with only top two allele counts per locus, and genotype call.
 ## Output: Data frame with extra column containing the peak heigh ratio for heterzygous loci, and NA for homozygous loci. One PHR per locus.
-peak_height_ratio <- function (genotype_call_df) {
+peak_height_ratio <- function (genotype_call_df, gt_threshold = 0.2) {
       genotype_call_df %>% 
         group_by(Locus) %>% 
-        mutate(peak_height_ratio =  ifelse((min(Seq_Coverage)/max(Seq_Coverage))> .2,
+        mutate(peak_height_ratio =  ifelse((min(Seq_Coverage)/max(Seq_Coverage))> gt_threshold,
                            round((min(Seq_Coverage)/max(Seq_Coverage)),4), NA_real_))
 }
 
