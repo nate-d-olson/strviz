@@ -50,7 +50,7 @@ genotype_call <- function (peak_cov_df, gt_threshold = 0.2) {
 peak_height_ratio <- function (genotype_call_df, gt_threshold = 0.2) {
       genotype_call_df %>% 
         group_by(Locus) %>% 
-        mutate(peak_height_ratio =  ifelse((min(Seq_Coverage)/max(Seq_Coverage))> gt_threshold,
+        mutate(Peak_Height_Ratio =  ifelse((min(Seq_Coverage)/max(Seq_Coverage))> gt_threshold,
                            round((min(Seq_Coverage)/max(Seq_Coverage)),4), NA_real_))
 }
 
