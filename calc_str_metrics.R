@@ -19,9 +19,10 @@ peak_coverage <- function (allele_counts_df) {
         # peak and not the coverage of the majority peaks coverage
         group_by(Locus) %>% 
         mutate(Locus_Coverage = sum(Seq_Coverage)) %>% 
-        top_n(n = 2, wt = Seq_Coverage)
+        top_n(n = 2, wt = Seq_Coverage) 
+    
 }
-#Want to NA out all homozygous stutter counts
+
 
 
 
