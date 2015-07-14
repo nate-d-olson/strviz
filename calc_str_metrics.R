@@ -4,6 +4,11 @@
 ## Input: A data frame of the counts split up by read and direction.
 ## Output: Only the top two allele counts for each Locus, disregards stutter for heterozygous genotypes.
 
+#Have function that has all the counting information in a df
+#Create new df from count df with genotype (each locus and genotype) 
+#Create a homozygous metrics df and heterzygous metrics df (filter by genotype(join-> filter))
+#Then calculate rest of metrics
+
 peak_coverage <- function (allele_counts_df) {
     allele_counts_df[is.na(allele_counts_df)] <- 0
     allele_counts_df %>% 
@@ -18,8 +23,7 @@ peak_coverage <- function (allele_counts_df) {
         # changed to peak coverage as it represents the coverage for the 
         # peak and not the coverage of the majority peaks coverage
         group_by(Locus) %>% 
-        mutate(Locus_Coverage = sum(Seq_Coverage)) %>% 
-        top_n(n = 2, wt = Seq_Coverage) 
+        mutate(Locus_Coverage = sum(Seq_Coverage)) 
     
 }
 
