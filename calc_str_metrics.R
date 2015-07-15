@@ -65,7 +65,8 @@ genotype_call <- function (peak_cov_df, gt_threshold = 0.2) {
         left_join(cov_df) %>% 
         mutate(Allele = as.numeric(Allele)) %>% 
         stutter_homo() %>%  
-        top_n(1, wt = Seq_Coverage)  %>%             
+        top_n(1, wt = Seq_Coverage)  %>% 
+        stutter_rat() %>% 
         peak_height_ratio() %>% 
         read_bias() %>% 
         strand_bias() %>% 
@@ -77,10 +78,14 @@ genotype_call <- function (peak_cov_df, gt_threshold = 0.2) {
 stutter_homo <- function(cov_df) {
     cov_df %>% 
     group_by(Locus) %>%    
-        mutate(Stutter = lag(Allele_Coverage)) 
+        mutate(Stutter_1 = lag(Allele_Coverage)) 
 }
  
-
+stutter_rat <- function(stutter_df) {
+    stutter_df %>% 
+        mutate(Stutter_Ratio = Stutter_1/Allele_Coverage ) 
+        
+}
                
          
          
