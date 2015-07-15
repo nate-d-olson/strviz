@@ -64,7 +64,7 @@ genotype_call <- function (peak_cov_df, gt_threshold = 0.2) {
      homo_cov_df <- filter(geno_df, Genotype == "Homozygous") %>% 
         left_join(cov_df) %>% 
         mutate(Allele = as.numeric(Allele)) %>% 
-        stutter() %>%  
+        stutter_homo() %>%  
         top_n(1, wt = Seq_Coverage)  %>%             
         peak_height_ratio() %>% 
         read_bias() %>% 
@@ -74,7 +74,7 @@ genotype_call <- function (peak_cov_df, gt_threshold = 0.2) {
          
  }
  
-stutter <- function(cov_df) {
+stutter_homo <- function(cov_df) {
     cov_df %>% 
     group_by(Locus) %>%    
         mutate(Stutter = lag(Allele_Coverage)) 
