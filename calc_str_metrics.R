@@ -53,13 +53,22 @@ genotype_call <- function (peak_cov_df, gt_threshold = 0.2) {
 ## Output: 
 calc_het_metrics <- function(geno_df, cov_df){
      het_cov_df <- filter(geno_df, Genotype == "Heterozygous") %>% 
-        left_join(cov_df)
-     
-     peak_height_ratio(het_cov_df) %>% 
-        read_bias() %>% 
-        strand_bias() %>% 
-        non_maj_peaks ()
-}
+     left_join(cov_df)  
+     het_cov_df$Allele <- het_cov_df$Allele %>% str_replace("X", "100") %>% 
+     str_replace("Y", "1010") %>%  
+     as.numeric() 
+     het_cov_df <- het_cov_df %>%      
+     group_by(Locus) %>% 
+     stutter_homo() %>% 
+     as.character() %>% 
+     str_replace("100", "X") %>% 
+     str_replace("1010", "Y") %>% 
+     top_n(2, wt= Seq_Coverage)
+     peak_height_ratio() %>% 
+     read_bias() %>% 
+     strand_bias() %>% 
+     non_maj_peaks ()
+ }
 
 ## Description: 
 ## Input: 
