@@ -7,6 +7,7 @@ source("calc_str_metrics.R")
 seq_dir <- "A4-C-WA29594_S25_L001_R1_001.fastq.STRaitRazor/PE_MiSeq_ALL/"
 
 seq_df <- process_sequences_directory(seq_dir)
+
 allele_counts_df <- str_allele_counts(seq_df)
 
 
