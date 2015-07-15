@@ -2,6 +2,7 @@
 ##              and direction as well as sequence, locus, and allele sums. 
 ## Input: A data frame of the counts split up by read and direction.
 ## Output: One dataframe will all various coverage values.
+
 #Have function that has all the counting information in a df
 #Create new df from count df with genotype (each locus and genotype) 
 #Create a homozygous metrics df and heterzygous metrics df (filter by genotype(join-> filter))
@@ -29,13 +30,13 @@ coverage_calc <- function (allele_counts_df) {
 
 ## Description: Assigns a genotype call to each locus based on the peak height 
 ##              ratio threshold and uses call to calculate the majority peaks coverage.
-## Input: Data frame with only top two allele counts per locus. 
-##        gt_threshold - cutoff for the ratio between top two allele calls,
+## Input: Data frame with various coverage values - 
+##        cutoff for the ratio between top two allele calls,
 ##        default value 0.2
-## Output: Data frame with extra column containing genotype call per locus.
+## Output: Data frame with only the loci and their respective genotypes.
 
-genotype_call <- function (peak_cov_df, gt_threshold = 0.2) {
-    peak_cov_df %>% 
+genotype_call <- function (cov_df, gt_threshold = 0.2) {
+    cov_df %>% 
       top_n(n = 2, wt = Seq_Coverage) %>% 
       group_by(Locus) %>% 
       mutate(Genotype = ifelse(min(Seq_Coverage)/max(Seq_Coverage) > gt_threshold, 
@@ -162,7 +163,6 @@ calc_homo_metrics <- function(geno_df, cov_df){
     ## see note about function returning values in calc_allele_metric
     homo_cov_df     
 }
-
 
 
 ## Description: 
