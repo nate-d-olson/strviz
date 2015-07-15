@@ -57,15 +57,18 @@ genotype_call <- function (peak_cov_df, gt_threshold = 0.2) {
      as.numeric() 
      het_cov_df <- het_cov_df %>%      
      group_by(Locus) %>% 
-     stutter_homo() %>% 
+     stutter_homo() 
+     het_cov_df$Allele <- het_cov_df$Allele %>% 
      as.character() %>% 
      str_replace("100", "X") %>% 
-     str_replace("1010", "Y") %>% 
-     top_n(2, wt= Seq_Coverage)
+     str_replace("1010", "Y") 
+     het_cov_df <- het_cov_df %>% 
+     top_n(2, wt= Seq_Coverage) %>% 
      peak_height_ratio() %>% 
      read_bias() %>% 
      strand_bias() %>% 
      non_maj_peaks ()
+     
  }
 
  calc_homo_df <- function(geno_df, cov_df){
@@ -98,12 +101,12 @@ stutter_rat <- function(stutter_df) {
          
          
      
-     
-     peak_height_ratio(homo_cov_df) %>% 
-         read_bias() %>% 
-         strand_bias() %>% 
-         non_maj_peaks ()
- }
+#      
+#      peak_height_ratio(homo_cov_df) %>% 
+#          read_bias() %>% 
+#          strand_bias() %>% 
+#          non_maj_peaks ()
+#  
  
 
 
