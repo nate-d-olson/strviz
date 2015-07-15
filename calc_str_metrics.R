@@ -48,8 +48,10 @@ genotype_call <- function (peak_cov_df, gt_threshold = 0.2) {
 }
 
 
-
- calc_het_df <- function(geno_df, cov_df){
+## Description: 
+## Input: 
+## Output: 
+calc_het_metrics <- function(geno_df, cov_df){
      het_cov_df <- filter(geno_df, Genotype == "Heterozygous") %>% 
      left_join(cov_df)  
      het_cov_df$Allele <- het_cov_df$Allele %>% str_replace("X", "100") %>% 
@@ -71,8 +73,11 @@ genotype_call <- function (peak_cov_df, gt_threshold = 0.2) {
      
  }
 
- calc_homo_df <- function(geno_df, cov_df){
-     homo_cov_df <- filter(geno_df, Genotype == "Homozygous") %>% 
+## Description: 
+## Input: 
+## Output:
+calc_homo_metrics <- function(geno_df, cov_df){
+    homo_cov_df <- filter(geno_df, Genotype == "Homozygous") %>% 
         left_join(cov_df) %>% 
         mutate(Allele = as.numeric(Allele)) %>% 
         stutter_homo() %>%  
@@ -82,16 +87,24 @@ genotype_call <- function (peak_cov_df, gt_threshold = 0.2) {
         read_bias() %>% 
         strand_bias() %>% 
         non_maj_peaks ()
-        homo_cov_df[homo_cov_df == 1] <- NA
-         
- }
- 
+     
+    homo_cov_df[homo_cov_df == 1] <- NA
+    ## see note about function returning values in calc_allele_metric
+    homo_cov_df     
+}
+
+## Description: 
+## Input: 
+## Output:
 stutter_homo <- function(cov_df) {
     cov_df %>% 
     group_by(Locus) %>%    
         mutate(Stutter_1 = lag(Allele_Coverage)) 
 }
  
+## Description: 
+## Input: 
+## Output:
 stutter_rat <- function(stutter_df) {
     stutter_df %>% 
         mutate(Stutter_Ratio = Stutter_1/Allele_Coverage ) 
@@ -101,13 +114,22 @@ stutter_rat <- function(stutter_df) {
          
          
      
+<<<<<<< HEAD
 #      
+=======
+## Not sure if you still need this code but it was presenting the script from being sourced    
+>>>>>>> 08af7fddc4151a2f1a850f56cea7090e2ee43c99
 #      peak_height_ratio(homo_cov_df) %>% 
 #          read_bias() %>% 
 #          strand_bias() %>% 
 #          non_maj_peaks ()
+<<<<<<< HEAD
 #  
  
+=======
+#  }
+#  
+>>>>>>> 08af7fddc4151a2f1a850f56cea7090e2ee43c99
 
 
 ## Description: Assigns a peak height ratio to each heterozygous locus based on the top two peaks.
@@ -168,17 +190,35 @@ non_maj_peaks <- function (allele_counts_df) {
 # }
 
 
-
+## Description: 
+## Input: 
+## Output:
 calc_geno_metrics <- function(geno_df, cov_df){
-    homo_df <- calc_homo_metrics(geno_df, cov_df)
+    ## function names did not match to function calls, changed function names in
+    ## definitions above
+    ## Their are two issues with the code 
+    ## 1. homo_df and het_df have different numbers of rows, for bind_rows to 
+    ##    work the data frames need to have the same number of rows and same 
+    ##    column names
+    ## 2. het_df have 1592 row,  I think you skipped a step ;)
+    homo_df <- calc_homo_metrics(geno_df, cov_df) 
     het_df <- calc_het_metrics(geno_df, cov_df)
     bind_rows(homo_df, het_df)
 }
 
-
- calc_allele_metrics <- function(allele_counts_df){
+## Description: 
+## Input: 
+## Output:
+calc_allele_metrics <- function(allele_counts_df){
     cov_df <- coverage_calc(allele_counts_df)  
     geno_df<- genotype_call(cov_df)
-    metrics_df <- calc_geno_metrics(geno_df, cov_df)
-        
+    ## for a funtion to return a value the last command executed needs to return a value
+    ## when a command is assigned to a value the function returns NULL 
+    calc_geno_metrics(geno_df, cov_df)
+    ## can also use return()
+    ## metric_df <- calc_geno_metrics(geno_df, cov_df)
+    ## return(metric_df) 
+    ## in this case return() is not necessary
+    ## but return() can be useful in other situtations
+    ## for example if you want return different values when using a if statement
 }
