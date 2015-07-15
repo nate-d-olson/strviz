@@ -51,7 +51,7 @@ genotype_call <- function (peak_cov_df, gt_threshold = 0.2) {
 
  calc_het_df <- function(geno_df, cov_df){
      het_cov_df <- filter(geno_df, Genotype == "Heterozygous") %>% 
-     left_join(cov_df)
+     left_join(cov_df) %>% 
      
      
      peak_height_ratio(het_cov_df) %>% 
