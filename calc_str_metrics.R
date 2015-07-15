@@ -81,6 +81,19 @@ stutter <- function(cov_df) {
 }
  
 
+               
+         
+         
+     
+     
+     peak_height_ratio(homo_cov_df) %>% 
+         read_bias() %>% 
+         strand_bias() %>% 
+         non_maj_peaks ()
+ }
+ 
+
+
 ## Description: Assigns a peak height ratio to each heterozygous locus based on the top two peaks.
 ## Input: Data frame with only top two allele counts per locus, and genotype call.
 ## Output: Data frame with extra column containing the peak heigh ratio for heterzygous loci, and NA for homozygous loci. One PHR per locus.
