@@ -9,7 +9,7 @@
 #Create a homozygous metrics df and heterzygous metrics df (filter by genotype(join-> filter))
 #Then calculate rest of metrics
 
-peak_coverage <- function (allele_counts_df) {
+coverage_calc <- function (allele_counts_df) {
     allele_counts_df[is.na(allele_counts_df)] <- 0
     allele_counts_df %>% 
         rowwise() %>% 
@@ -39,15 +39,47 @@ peak_coverage <- function (allele_counts_df) {
 
 genotype_call <- function (peak_cov_df, gt_threshold = 0.2) {
     peak_cov_df %>% 
+      top_n(n = 2, wt = Seq_Coverage) %>% 
       group_by(Locus) %>% 
       mutate(Genotype = ifelse(min(Seq_Coverage)/max(Seq_Coverage) > gt_threshold, 
-                               "Heterogyzous", "Homozygous"))
-#              ,Coverage_of_Majority_Peaks = ifelse(Genotype == "Heterozygous", 
-#                                             sum(Seq_Coverage), 
-#                                             max(Seq_Coverage)))
+                               "Heterozygous", "Homozygous")) %>% 
+        select(Locus, Genotype) %>% 
+        unique ()
 }
 
 
+
+ calc_het_df <- function(geno_df, cov_df){
+     het_cov_df <- filter(geno_df, Genotype == "Heterozygous") %>% 
+     left_join(cov_df)
+     
+     
+     peak_height_ratio(het_cov_df) %>% 
+     read_bias() %>% 
+     strand_bias() %>% 
+     non_maj_peaks ()
+ }
+
+ calc_homo_df <- function(geno_df, cov_df){
+     homo_cov_df <- filter(geno_df, Genotype == "Homozygous") %>% 
+        left_join(cov_df) %>% 
+        mutate(Allele = as.numeric(Allele)) %>% 
+        stutter() %>%  
+        top_n(1, wt = Seq_Coverage)  %>%             
+        peak_height_ratio() %>% 
+        read_bias() %>% 
+        strand_bias() %>% 
+        non_maj_peaks ()
+        homo_cov_df[homo_cov_df == 1] <- NA
+         
+ }
+ 
+stutter <- function(cov_df) {
+    cov_df %>% 
+    group_by(Locus) %>%    
+        mutate(Stutter = lag(Allele_Coverage)) 
+}
+ 
 
 ## Description: Assigns a peak height ratio to each heterozygous locus based on the top two peaks.
 ## Input: Data frame with only top two allele counts per locus, and genotype call.
@@ -82,6 +114,7 @@ strand_bias <- function (read_bias_df) {
       rowwise() %>%
       mutate(Strand_Bias = min(c(Sum_D1, Sum_D2))/Seq_Coverage)
 }
+
 #Want to NA out all homozygous stutter counts
 
 
@@ -93,13 +126,30 @@ non_maj_peaks <- function (allele_counts_df) {
         mutate(Percentage_of_non_Majority_peaks = 
                    (Allele_Coverage - Seq_Coverage)/Allele_Coverage)
 }
-             
+ 
+            
 
-calc_allele_metrics <- function(allele_counts_df){
-    peak_coverage(allele_counts_df) %>% 
-        genotype_call() %>% 
-        peak_height_ratio() %>% 
-        read_bias() %>% 
-        strand_bias() %>% 
-        non_maj_peaks ()
+# calc_allele_metrics <- function(allele_counts_df){
+#     peak_coverage(allele_counts_df) %>% 
+#         genotype_call() %>% 
+#         peak_height_ratio() %>% 
+#         read_bias() %>% 
+#         strand_bias() %>% 
+#         non_maj_peaks ()
+# }
+
+
+
+calc_geno_metrics <- function(geno_df, cov_df){
+    homo_df <- calc_homo_metrics(geno_df, cov_df)
+    het_df <- calc_het_metrics(geno_df, cov_df)
+    bind_rows(homo_df, het_df)
+}
+
+
+ calc_allele_metrics <- function(allele_counts_df){
+    cov_df <- coverage_calc(allele_counts_df)  
+    geno_df<- genotype_call(cov_df)
+    metrics_df <- calc_geno_metrics(geno_df, cov_df)
+        
 }
