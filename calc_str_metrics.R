@@ -1,12 +1,10 @@
+library(stringr)
+
+
 ## Description: Creates new data frame with all the coverage values, including the sums of reads 
 ##              and direction as well as sequence, locus, and allele sums. 
 ## Input: A data frame of the counts split up by read and direction.
 ## Output: One dataframe will all various coverage values.
-
-#Have function that has all the counting information in a df
-#Create new df from count df with genotype (each locus and genotype) 
-#Create a homozygous metrics df and heterzygous metrics df (filter by genotype(join-> filter))
-#Then calculate rest of metrics
 
 coverage_calc <- function (allele_counts_df) {
     allele_counts_df[is.na(allele_counts_df)] <- 0
@@ -19,8 +17,6 @@ coverage_calc <- function (allele_counts_df) {
                Seq_Coverage = sum(D2_R1, D2_R2, D1_R1, D1_R2)) %>% 
         group_by(Allele,Locus) %>% 
         mutate(Allele_Coverage = sum(Seq_Coverage)) %>% 
-        # changed to peak coverage as it represents the coverage for the 
-        # peak and not the coverage of the majority peaks coverage
         group_by(Locus) %>% 
         mutate(Locus_Coverage = sum(Seq_Coverage)) 
     
@@ -54,6 +50,17 @@ stutter <- function(cov_df) {
     cov_df %>% 
     group_by(Locus) %>%    
         mutate(Stutter_1 = lag(Allele_Coverage)) 
+}
+
+## Description: Adjusts stutter for heterzygous loci
+## Input: Data frame with stutter calculated for hererozygous loci. 
+## Output: Makes the higher of two consecutive alleles N/A, and makes all stutter for AMEL N/aA
+stutter_het_adj <- function(stutter_df) {
+    stutter_df %>% 
+        group_by(Locus) %>% 
+           mutate(Stutter_1 = ifelse(max(Allele)-min(Allele)==1 & 
+              Allele==max(Allele), NA_integer_, Stutter_1)) %>% 
+           mutate(Stutter_1 = ifelse(Locus=="AMEL", NA_real_, Stutter_1) )
 }
  
 ## Description: Cacluates sutter ratio
@@ -89,7 +96,6 @@ read_bias <- function(peak_height_ratio_df) {
       rowwise() %>%
       mutate(Read_Bias = min(c(Sum_R1, Sum_R2))/Seq_Coverage)
 }
-#Want to NA out all homozygous stutter counts
 
 
 ## Description: Assigns a strand bias to each allele (two for heterzygotes and only the majority peak for homozygotes).
@@ -102,13 +108,12 @@ strand_bias <- function (read_bias_df) {
       mutate(Strand_Bias = min(c(Sum_D1, Sum_D2))/Seq_Coverage)
 }
 
-#Want to NA out all homozygous stutter counts
-
-
-#Prelimiary coverage of non majority peaks (need to figure out how to do this
-#all in one data frame, and not include the stutter alleles)
-non_maj_peaks <- function (allele_counts_df) {
-    allele_counts_df %>% 
+## Description: Calculates the ration of non majority peaks over majority peaks for largest sequence per allele
+## Input: Data frame with coverage values
+## Output: Data frame with additional column containin the stutter,
+##         the total allele coverage for the previous allele in the locus 
+non_maj_peaks <- function (cov_df) {
+    cov_df %>% 
         rowwise() %>% 
         mutate(Percentage_of_non_Majority_peaks = 
                    (Allele_Coverage - Seq_Coverage)/Allele_Coverage)
@@ -121,25 +126,24 @@ non_maj_peaks <- function (allele_counts_df) {
 calc_het_metrics <- function(geno_df, cov_df){
     het_cov_df <- filter(geno_df, Genotype == "Heterozygous") %>% 
         left_join(cov_df)  
-    het_cov_df$Allele <- het_cov_df$Allele %>% str_replace("X", "100") %>% 
+    het_cov_df$Allele <- het_cov_df$Allele %>% 
+        str_replace("X", "100") %>% 
         str_replace("Y", "1010") %>%  
         as.numeric() 
-    het_cov_df <- het_cov_df %>%      
-        group_by(Locus) %>% 
-        stutter() 
+    het_cov_df <- het_cov_df %>% 
+        stutter() %>% 
+        top_n(2, wt= Seq_Coverage)  %>%
+         stutter_het_adj() %>%         
+         stutter_rat()  
     het_cov_df$Allele <- het_cov_df$Allele %>% 
         as.character() %>% 
         str_replace("100", "X") %>% 
         str_replace("1010", "Y") 
     het_cov_df <- het_cov_df %>% 
-        top_n(2, wt= Seq_Coverage) %>% 
-        stutter_rat() %>% 
         peak_height_ratio() %>% 
         read_bias() %>% 
         strand_bias() %>% 
         non_maj_peaks () 
-    
-    ##Need to add code where if 2 alleles are adjacent, the MAX stutter between the 2 is N/A
     
 }
 
@@ -151,7 +155,7 @@ calc_homo_metrics <- function(geno_df, cov_df){
         left_join(cov_df) %>% 
         mutate(Allele = as.numeric(Allele)) %>% 
         stutter() %>%  
-        top_n(1, wt = Seq_Coverage)  %>% 
+        top_n(2, wt = Seq_Coverage)  %>% 
         stutter_rat() %>% 
         peak_height_ratio() %>% 
         read_bias() %>% 
@@ -165,35 +169,22 @@ calc_homo_metrics <- function(geno_df, cov_df){
 }
 
 
-## Description: 
-## Input: 
-## Output:
+## Description: Calcualtes metrics for both heterozygous and homozygous loci.
+## Input: Two data frames, one with all coverage values, and one with all loci and their respective genotypes.
+## Output: Data frame with all coverage counts and summary metrics for all loci. 
 calc_geno_metrics <- function(geno_df, cov_df){
-    ## function names did not match to function calls, changed function names in
-    ## definitions above
-    ## Their are two issues with the code 
-    ## 1. homo_df and het_df have different numbers of rows, for bind_rows to 
-    ##    work the data frames need to have the same number of rows and same 
-    ##    column names
-    ## 2. het_df have 1592 row,  I think you skipped a step ;)
     homo_df <- calc_homo_metrics(geno_df, cov_df) 
     het_df <- calc_het_metrics(geno_df, cov_df)
     bind_rows(homo_df, het_df)
 }
 
-## Description: 
-## Input: 
-## Output:
+## Description: Created two data frames, one with all coverage values, and one with all loci and their respective genotypes, 
+##              and then calcuates all metrics using calc_geno_metrics.
+## Input:  Data frame with all the allele counts.
+## Output: Data frame with all coverage counts and summary metrics for all loci. 
 calc_allele_metrics <- function(allele_counts_df){
     cov_df <- coverage_calc(allele_counts_df)  
     geno_df<- genotype_call(cov_df)
-    ## for a funtion to return a value the last command executed needs to return a value
-    ## when a command is assigned to a value the function returns NULL 
     calc_geno_metrics(geno_df, cov_df)
-    ## can also use return()
-    ## metric_df <- calc_geno_metrics(geno_df, cov_df)
-    ## return(metric_df) 
-    ## in this case return() is not necessary
-    ## but return() can be useful in other situtations
-    ## for example if you want return different values when using a if statement
 }
+
