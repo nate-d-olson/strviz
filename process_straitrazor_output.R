@@ -92,21 +92,14 @@ process_sample <- function (seq_dir) {
     calc_allele_metrics(allele_counts_df) %>% mutate(Sample = seq_dir)
 }
 
-batch_process_samples <- function(sample_dirs){
-            for(dir in c("R1", "R2")){
-                directory <- paste0(root_dir,"/", read,"/")
-                for(seq_file in list.files(directory, "sequences",full.names = TRUE)){
-                    seq_df <- process_sequence_file(seq_file,read)
-                    df <- bind_rows(df, seq_df)
-                }
-            }
-            #This is what to do if there is only a R1 in the initial data
-            #There is currently no code written for this option
-        }else{
-            #%%TODO%%
-            warning("No code for unpaired read data")
-        }
-        df
+
+sample_dirs <- list.dirs("STRaitRazor2.0output/", recursive = F)
+paste0(list_dirs, "/PE_MiSeq_ALL")
+
+
+batch_process_samples <- function (sample_dirs) {
+    for (file in list.dirs("sample_dirs", full.names = T)) {    
+        summary_met <- process_sample(read.csv(file))                       
+        write.csv(summary_met, "summary.csv")  
     }
-    sample_met <-  process_sample(dir)
 }
