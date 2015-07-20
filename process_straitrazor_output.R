@@ -3,6 +3,8 @@ library(dplyr)
 library(tidyr)
 library(magrittr)
 library(ggplot2)
+source("get_counts.R")
+source("calc_str_metrics.R")
 
 ### -----Process Sequences Files -----------------------------------------------
 ###
@@ -32,7 +34,8 @@ process_sequences_directory <- function(root_dir, paired = TRUE){
         for(read in c("R1", "R2")){
             directory <- paste0(root_dir,"/", read,"/")
             for(seq_file in list.files(directory, "sequences",full.names = TRUE)){
-                df %<>% bind_rows(process_sequence_file(seq_file,read))
+                seq_df <- process_sequence_file(seq_file,read)
+                df <- bind_rows(df, seq_df)
             }
         }
    #This is what to do if there is only a R1 in the initial data
@@ -83,3 +86,27 @@ process_allelecalls_directory <- function(root_dir, paired = TRUE){
     df
 }
 
+process_sample <- function (seq_dir) {
+    seq_df <- process_sequences_directory(seq_dir)
+    allele_counts_df <- str_allele_counts(seq_df)
+    calc_allele_metrics(allele_counts_df) %>% mutate(Sample = seq_dir)
+}
+
+batch_process_samples <- function(sample_dirs){
+            for(dir in c("R1", "R2")){
+                directory <- paste0(root_dir,"/", read,"/")
+                for(seq_file in list.files(directory, "sequences",full.names = TRUE)){
+                    seq_df <- process_sequence_file(seq_file,read)
+                    df <- bind_rows(df, seq_df)
+                }
+            }
+            #This is what to do if there is only a R1 in the initial data
+            #There is currently no code written for this option
+        }else{
+            #%%TODO%%
+            warning("No code for unpaired read data")
+        }
+        df
+    }
+    sample_met <-  process_sample(dir)
+}
