@@ -92,6 +92,7 @@ process_sample <- function (seq_dir) {
     calc_allele_metrics(allele_counts_df) %>% mutate(Sample = seq_dir)
 }
 
+##Below is where I am having issues,
 
 sample_dirs <- list.dirs("STRaitRazor2.0output/", recursive = F)
 paste0(list_dirs, "/PE_MiSeq_ALL")
