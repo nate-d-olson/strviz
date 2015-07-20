@@ -37,4 +37,4 @@ process_allelecalls_directory <- function(root_dir, paired = TRUE){
 process_allelecalls_directory("H12-H-ZT80925_S96_L001_R1_001.fastq.STRaitRazor/PE_MiSeq_ALL/")
 
 
-
+#mutate a column names sample
