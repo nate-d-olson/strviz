@@ -66,3 +66,24 @@ Below is the function used to determine the percent of peaks for each allele tha
 ```{r}
 non_maj_peaks
 ```
+
+
+### Stutter
+
+Below is the function used for calcuating stutter for both homozygous and heterozygous loci. In this case, stutter is calcuatated as the entire coverage for the n-1 allele from the major peak.
+```{r}
+stutter
+```
+
+
+### Heterozygous stutter adjustment
+
+Below is the function used to make adjustments for heterozygous loci stutter count.
+It's first function is to identify if two heterzogous alleles are consecutive, and if they are
+the fucntion will make the sutter for the higher allele N/A, this is because it is not possible to differentiate between the 
+the stutter from allele 2 the coverage from allele 1.
+This function will also make all stutter for AMEL N/A, since AMEL is a gender identifier, rather than an STR. 
+```{r}
+stutter_het_adj
+```
+
