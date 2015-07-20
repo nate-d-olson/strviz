@@ -92,15 +92,13 @@ process_sample <- function (seq_dir) {
     calc_allele_metrics(allele_counts_df) %>% mutate(Sample = seq_dir)
 }
 
-##Below is where I am having issues,
-
-sample_dirs <- list.dirs("STRaitRazor2.0output/", recursive = F)
-paste0(sample_dirs, "/PE_MiSeq_ALL")
-
-
 batch_process_samples <- function (sample_dirs) {
-    for (file in list.dirs("sample_dirs", full.names = T)) {    
-        summary_met <- process_sample(file)
-        write.csv(summary_met, "summary.csv") 
+    for (dirs in sample_dirs) {    
+        summary_met <- process_sample(dirs)
+        ## this writes to the same file overwriting existing data 
+        ## use append = TRUE to add to the file - need to be careful with this
+        ## as it will add to the file even if it was from a previous run
+        ## think about how to avoid this issue
+        write.csv(summary_met, "summary.csv",append = TRUE) 
     }
 }
