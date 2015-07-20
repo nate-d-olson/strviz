@@ -37,6 +37,7 @@ genotype_call <- function (cov_df, gt_threshold = 0.2) {
       group_by(Locus) %>% 
       mutate(Genotype = ifelse(min(Seq_Coverage)/max(Seq_Coverage) > gt_threshold, 
                                "Heterozygous", "Homozygous")) %>% 
+   #   mutate(Genotype = ifelse(Gentype == "Hetergozygous" &))    
         select(Locus, Genotype) %>% 
         unique ()
 }
@@ -54,7 +55,7 @@ stutter <- function(cov_df) {
 
 ## Description: Adjusts stutter for heterzygous loci
 ## Input: Data frame with stutter calculated for hererozygous loci. 
-## Output: Makes the higher of two consecutive alleles N/A, and makes all stutter for AMEL N/aA
+## Output: Makes the higher of two consecutive alleles N/A, and makes all stutter for AMEL N/A
 stutter_het_adj <- function(stutter_df) {
     stutter_df %>% 
         group_by(Locus) %>% 
@@ -152,16 +153,29 @@ calc_het_metrics <- function(geno_df, cov_df){
 ## Output: A data frame with all the metrics for all homozygous loci.
 calc_homo_metrics <- function(geno_df, cov_df){
     homo_cov_df <- filter(geno_df, Genotype == "Homozygous") %>% 
-        left_join(cov_df) %>% 
-        mutate(Allele = as.numeric(Allele)) %>% 
+        left_join(cov_df) 
+    homo_cov_df$Allele <- homo_cov_df$Allele %>% 
+        str_replace("X", "100") %>% 
+        as.numeric()
+     #   mutate(Allele = as.numeric(Allele)) %>% 
+     homo_cov_df <- homo_cov_df %>% 
         stutter() %>%  
-        top_n(2, wt = Seq_Coverage)  %>% 
-        stutter_rat() %>% 
+        top_n(1, wt = Seq_Coverage)  %>% 
+        stutter_rat()  
+     homo_cov_df$Allele <- homo_cov_df$Allele %>% 
+         as.character() %>% 
+         str_replace("100", "X")
+     homo_cov_df <- homo_cov_df %>%   
         peak_height_ratio() %>% 
         read_bias() %>% 
         strand_bias() %>% 
         non_maj_peaks () %>% 
-        mutate(Allele = as.character(Allele))
+        mutate(Allele = as.character(Allele))  
+     homo_cov_df <- homo_cov_df %>% 
+        bind_rows(homo_cov_df) %>% 
+        arrange(Locus) %>% 
+        mutate_each(funs(./2), D1_R1:Locus_Coverage)
+     
     
     homo_cov_df$Peak_Height_Ratio[homo_cov_df$Peak_Height_Ratio == 1] <- NA
     ## see note about function returning values in calc_allele_metric
