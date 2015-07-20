@@ -95,12 +95,12 @@ process_sample <- function (seq_dir) {
 ##Below is where I am having issues,
 
 sample_dirs <- list.dirs("STRaitRazor2.0output/", recursive = F)
-paste0(list_dirs, "/PE_MiSeq_ALL")
+paste0(sample_dirs, "/PE_MiSeq_ALL")
 
 
 batch_process_samples <- function (sample_dirs) {
     for (file in list.dirs("sample_dirs", full.names = T)) {    
-        summary_met <- process_sample(read.csv(file))                       
-        write.csv(summary_met, "summary.csv")  
+        summary_met <- process_sample(file)
+        write.csv(summary_met, "summary.csv") 
     }
 }
