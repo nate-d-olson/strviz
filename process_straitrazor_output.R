@@ -93,7 +93,10 @@ process_sample <- function (seq_dir) {
 }
 
 batch_process_samples  <- function (sample_dirs) {
-    for (dirs in sample_dirs) {    
+    if (file.exists("summary.csv")){
+        unlink("summary.csv")
+    }
+    for (dirs in sample_dirs) {
         summary_met <- process_sample(dirs)
         ## this writes to the same file overwriting existing data 
         ## use append = TRUE to add to the file - need to be careful with this
