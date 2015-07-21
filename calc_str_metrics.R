@@ -31,9 +31,11 @@ coverage_calc <- function (allele_counts_df) {
 genotype_call <- function (cov_df, gt_threshold = 0.2) {
     cov_df %>% 
       top_n(n = 2, wt = Seq_Coverage) %>% 
-      group_by(Locus) %>% 
-      mutate(Genotype = ifelse(min(Seq_Coverage)/max(Seq_Coverage) > gt_threshold, 
+      group_by(Locus)
+    cov_df <- cov_df[!(cov_df$Locus_Coverage==0),]
+    cov_df <- mutate(Genotype = ifelse(min(Seq_Coverage)/max(Seq_Coverage) > gt_threshold, 
                                "Heterozygous", "Homozygous")) %>% 
+    ##Need if statement if seq_coverage for both are equal   
         select(Locus, Genotype) %>% 
         unique ()
 }
