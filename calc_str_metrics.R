@@ -37,9 +37,7 @@ genotype_call <- function (cov_df, gt_threshold = 0.2) {
         ##Need if statement if seq_coverage for both are equal   
         
         mutate(Genotype = ifelse(min(Seq_Coverage)/max(Seq_Coverage) > gt_threshold, 
-                               "Heterozygous", "Homozygous")) 
-    cov_df <- cov_df %>%  
-        mutate(Genotype = ifelse(min(Allele)==max(Allele), "Sequence Based Heterozygote", Genotype)) %>%  
+                               "Heterozygous", "Homozygous")) %>% 
     select(Locus, Genotype) %>% 
         unique ()
 }
@@ -146,7 +144,9 @@ calc_het_metrics <- function(geno_df, cov_df){
         peak_height_ratio() %>% 
         read_bias() %>% 
         strand_bias() %>% 
-        non_maj_peaks () 
+        non_maj_peaks () %>% 
+        group_by(Locus) %>% 
+        mutate(Genotype = ifelse(min(Allele)==max(Allele), "Sequence Based Heterozygote", Genotype))  
 }
 
 ## Description: This function is used to calculate all the various metris for all the homozygous loci.
