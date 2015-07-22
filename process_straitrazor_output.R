@@ -86,10 +86,15 @@ process_allelecalls_directory <- function(root_dir, paired = TRUE){
     df
 }
 
-process_sample <- function (seq_dir) {
+process_single_sample <- function (seq_dir) {
+    if (file.exists("single_summary.csv")){
+        unlink("single_summary.csv")
+    }
     seq_df <- process_sequences_directory(seq_dir)
     allele_counts_df <- str_allele_counts(seq_df)
-    calc_allele_metrics(allele_counts_df) %>% mutate(Sample = seq_dir)
+    single_summary_met <- calc_allele_metrics(allele_counts_df) %>% mutate(Sample = seq_dir)
+    write.table(single_summary_met, "single_summary.csv", append = TRUE, sep = ",", row.names = FALSE, col.names=!file.exists("single_summary.csv")) 
+    
 }
 
 batch_process_samples  <- function (sample_dirs) {
@@ -97,7 +102,7 @@ batch_process_samples  <- function (sample_dirs) {
         unlink("summary.csv")
     }
     for (dirs in sample_dirs) {    
-        summary_met <- process_sample(dirs)
+        summary_met <- process_single_sample(dirs)
         write.table(summary_met, "summary.csv", append = TRUE, sep = ",", row.names = FALSE, col.names=!file.exists("summary.csv")) 
     }
 }
