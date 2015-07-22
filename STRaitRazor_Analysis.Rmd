@@ -33,11 +33,11 @@ sample_dirs <- list.dirs("STRaitRazor2.0output", recursive = F) %>%
                     paste0("your_path_here")
 ```
 
-Where your_path_here 
+Where your_path_here  
 
 Then run this code:
 ```{r, echo=FALSE}
 batch_process_samples(sample_dirs) 
 ```
-And this will output a file called ssummary.csv!
+And this will output a file called summary.csv!
 
