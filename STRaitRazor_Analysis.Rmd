@@ -1,0 +1,43 @@
+---
+title: "STRaitRazor_Analysis"
+author: "Shira E. Winston"
+date: "July 22, 2015"
+output: html_document
+---
+
+```{r}
+source("process_straitrazor_output.R")
+```
+
+
+This is an R Markdown document used to help analyze STRaitRazor output, both individualy and as a group of samples using R. 
+
+If you want to analyze an individual sample you first must define the file path of your STRaitRazor output.
+To do that use this command:
+
+```{r, echo=FALSE}
+seq_dir <- setwd("STRaitRazor2.0output/your_path_here")
+```
+
+Then run this code:
+```{r, echo=FALSE}
+process_single_sample(seq_dir) 
+```
+And this will output a file called single_summary.csv!
+
+If you want to analyze an multiple samples you first must define the directory paths of your STRaitRazor output.
+To do that use this command:
+
+```{r, echo=FALSE}
+sample_dirs <- list.dirs("STRaitRazor2.0output", recursive = F) %>% 
+                    paste0("your_path_here")
+```
+
+Where your_path_here 
+
+Then run this code:
+```{r, echo=FALSE}
+batch_process_samples(sample_dirs) 
+```
+And this will output a file called ssummary.csv!
+
