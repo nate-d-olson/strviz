@@ -15,29 +15,31 @@ This is an R Markdown document used to help analyze STRaitRazor output, both ind
 If you want to analyze an individual sample you first must define the file path of your STRaitRazor output.
 To do that use this command:
 
-```{r, echo=FALSE}
-seq_dir <- setwd("STRaitRazor2.0output/your_path_here")
+```
+seq_dir <- "STRaitRazor2.0output/your_path_here"
 ```
 
 Then run this code:
-```{r, echo=FALSE}
+```{r}
+seq_dir <- "A12-H-ZT80786_S89_L001_R1_001.fastq.STRaitRazor/PE_MiSeq_ALL/"
 process_single_sample(seq_dir) 
 ```
 And this will output a file called single_summary.csv!
 
-If you want to analyze an multiple samples you first must define the directory paths of your STRaitRazor output.
+If you want to analyze multiple samples you first must define the directory path of your STRaitRazor output.
 To do that use this command:
 
-```{r, echo=FALSE}
+```
 sample_dirs <- list.dirs("STRaitRazor2.0output", recursive = F) %>% 
-                    paste0("your_path_here")
+                    paste0("/your_path_here")
 ```
 
-Where your_path_here  
+There run this code
 
-Then run this code:
-```{r, echo=FALSE}
-batch_process_samples(sample_dirs) 
+```{r}
+sample_dirs <- list.dirs("STRaitRazor2.0output", recursive = F) %>% 
+                    paste0("/PE_MiSeq_ALL")
+batch_process_samples(sample_dirs)
 ```
 And this will output a file called summary.csv!
 
