@@ -30,20 +30,32 @@ process_sequence_file <- function(seq_file, read){
     #containing all the information for the .sequence files. 
 process_sequences_directory <- function(root_dir, paired = TRUE){
     df <- data_frame()
+#     for(read in c("R1", "R2")){
+#         directory <- paste0(root_dir,"/", read,"/")
+#         if(!dir.exists(directory)){
+#             dir.create(directory)
+#         }
+#         for(seq_file in list.files(directory, "sequences",full.names = TRUE)){
+#             seq_df <- process_sequence_file(seq_file,read)
+#             df <- bind_rows(df, seq_df)   
+#         }
+#     }
     if(paired){
         for(read in c("R1", "R2")){
-            directory <- paste0(root_dir,"/", read,"/")
-            for(seq_file in list.files(directory, "sequences",full.names = TRUE)){
-                seq_df <- process_sequence_file(seq_file,read)
-                df <- bind_rows(df, seq_df)
-            }
-        }
-   #This is what to do if there is only a R1 in the initial data
-   #There is currently no code written for this option
-    }else{
-        #%%TODO%%
-        warning("No code for unpaired read data")
-    }
+             directory <- paste0(root_dir,"/", read,"/")
+             for(seq_file in list.files(directory, "sequences",full.names = TRUE)){
+                 seq_df <- process_sequence_file(seq_file,read)
+                 df <- bind_rows(df, seq_df)
+             }
+         }
+    #This is what to do if there is only a R1 in the initial data
+     }else{
+         directory <- paste0(root_dir,"/R1/")
+         for(seq_file in list.files(directory, "sequences",full.names = TRUE)){
+             seq_df <- process_sequence_file(seq_file,read)
+             df <- bind_rows(df, seq_df)
+         }
+     }
     df
 }
 
@@ -86,23 +98,26 @@ process_allelecalls_directory <- function(root_dir, paired = TRUE){
     df
 }
 
-process_single_sample <- function (seq_dir) {
-    if (file.exists("single_summary.csv")){
-        unlink("single_summary.csv")
-    }
+process_single_sample <- function (seq_dir, batch = FALSE) {
     seq_df <- process_sequences_directory(seq_dir)
     allele_counts_df <- str_allele_counts(seq_df)
     single_summary_met <- calc_allele_metrics(allele_counts_df) %>% mutate(Sample = seq_dir)
-    write.table(single_summary_met, "single_summary.csv", append = TRUE, sep = ",", row.names = FALSE, col.names=!file.exists("single_summary.csv")) 
     
+    if(batch){
+        return(single_summary_met)
+    }
+    # change output file name - sample specific
+    write.table(single_summary_met, "single_summary.csv", sep = ",", 
+                row.names = FALSE) 
 }
 
 batch_process_samples  <- function (sample_dirs) {
-    if (file.exists("summary.csv")){
-        unlink("summary.csv")
-    }
-    for (dirs in sample_dirs) {    
-        summary_met <- process_single_sample(dirs)
-        write.table(summary_met, "summary.csv", append = TRUE, sep = ",", row.names = FALSE, col.names=!file.exists("summary.csv")) 
+     if (file.exists("summary.csv")){
+         unlink("summary.csv")
+     }
+    for (dirs in sample_dirs) {
+        summary_met <- process_single_sample(dirs, batch = TRUE) 
+        write.table(summary_met, "summary.csv", append = TRUE, sep = ",", 
+               row.names = FALSE, col.names=!file.exists("summary.csv")) 
     }
 }
