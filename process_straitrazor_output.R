@@ -26,36 +26,36 @@ process_sequence_file <- function(seq_file, read){
         mutate(Allele_Calls = as.integer(Allele_Calls), Read = read)
 }
 
-    #This function will bind all the rows together to make one giant data frame
-    #containing all the information for the .sequence files. 
+#This function will bind all the rows together to make one giant data frame
+#containing all the information for the .sequence files. 
 process_sequences_directory <- function(root_dir, paired = TRUE){
     df <- data_frame()
-#     for(read in c("R1", "R2")){
-#         directory <- paste0(root_dir,"/", read,"/")
-#         if(!dir.exists(directory)){
-#             dir.create(directory)
-#         }
-#         for(seq_file in list.files(directory, "sequences",full.names = TRUE)){
-#             seq_df <- process_sequence_file(seq_file,read)
-#             df <- bind_rows(df, seq_df)   
-#         }
-#     }
+    #     for(read in c("R1", "R2")){
+    #         directory <- paste0(root_dir,"/", read,"/")
+    #         if(!dir.exists(directory)){
+    #             dir.create(directory)
+    #         }
+    #         for(seq_file in list.files(directory, "sequences",full.names = TRUE)){
+    #             seq_df <- process_sequence_file(seq_file,read)
+    #             df <- bind_rows(df, seq_df)   
+    #         }
+    #     }
     if(paired){
         for(read in c("R1", "R2")){
-             directory <- paste0(root_dir,"/", read,"/")
-             for(seq_file in list.files(directory, "sequences",full.names = TRUE)){
-                 seq_df <- process_sequence_file(seq_file,read)
-                 df <- bind_rows(df, seq_df)
-             }
-         }
-    #This is what to do if there is only a R1 in the initial data
-     }else{
-         directory <- paste0(root_dir,"/R1/")
-         for(seq_file in list.files(directory, "sequences",full.names = TRUE)){
-             seq_df <- process_sequence_file(seq_file,read)
-             df <- bind_rows(df, seq_df)
-         }
-     }
+            directory <- paste0(root_dir,"/", read,"/")
+            for(seq_file in list.files(directory, "sequences",full.names = TRUE)){
+                seq_df <- process_sequence_file(seq_file,read)
+                df <- bind_rows(df, seq_df)
+            }
+        }
+        #This is what to do if there is only a R1 in the initial data
+    }else{
+        directory <- paste0(root_dir,"/R1/")
+        for(seq_file in list.files(directory, "sequences",full.names = TRUE)){
+            seq_df <- process_sequence_file(seq_file,read)
+            df <- bind_rows(df, seq_df)
+        }
+    }
     df
 }
 
@@ -112,12 +112,12 @@ process_single_sample <- function (seq_dir, batch = FALSE) {
 }
 
 batch_process_samples  <- function (sample_dirs) {
-     if (file.exists("summary.csv")){
-         unlink("summary.csv")
-     }
+    if (file.exists("summary.csv")){
+        unlink("summary.csv")
+    }
     for (dirs in sample_dirs) {
         summary_met <- process_single_sample(dirs, batch = TRUE) 
         write.table(summary_met, "summary.csv", append = TRUE, sep = ",", 
-               row.names = FALSE, col.names=!file.exists("summary.csv")) 
+                    row.names = FALSE, col.names=!file.exists("summary.csv")) 
     }
 }
