@@ -6,6 +6,7 @@ output: html_document
 ---
 
 ```{r}
+setwd("/Users/sew/Desktop/strviz")
 source("process_straitrazor_output.R")
 ```
 
