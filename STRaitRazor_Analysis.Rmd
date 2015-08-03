@@ -4,6 +4,9 @@ author: "Shira E. Winston"
 date: "July 22, 2015"
 output: html_document
 ---
+```
+setwd("/Users/YOUR_NAME_HERE/Desktop/strviz")
+```
 
 ```{r}
 setwd("/Users/sew/Desktop/strviz")
